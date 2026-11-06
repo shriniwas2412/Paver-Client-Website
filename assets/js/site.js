@@ -33,11 +33,12 @@ function coloursOf(p){ return window.SP_DATA.colours[p.id]; }
 const hexOf = c => (COLOURS[c]||EXTRA_COLOURS[c]).hex;
 const nameOf = c => (COLOURS[c]||EXTRA_COLOURS[c]).name;
 /* main image for a product in a colour: its product image or photo when we have one, else the rendered laid pattern */
-function viewOf(p,c){ const ph=photoFor(p,c); if(ph) return {src:photoSrc(ph.f), real:ph.kind, cap:ph.cap};
+function viewOf(p,c,card){ if(card && !p.noRender && COLOURS[c]) return {src:imgOf(p.id,c), real:false, cap:p.name+" pattern in "+nameOf(c).toLowerCase()};
+  const ph=photoFor(p,c); if(ph) return {src:photoSrc(ph.f), real:ph.kind, cap:ph.cap};
   if(p.noRender) return {src:ROOT+"assets/img/stock/placeholder.webp", real:false, cap:p.full};
   return {src:imgOf(p.id,c), real:false, cap:p.name+" laid in "+nameOf(c).toLowerCase()}; }
 const P = id => PRODUCTS.find(p => p.id === id);
-const PATTERN_NAMES = {herringbone:"Herringbone", bond:"Running bond", basket:"Basket weave", stack:"Stack bond",
+const PATTERN_NAMES = {diamond:"Diamond", hex:"Honeycomb", herringbone:"Herringbone", bond:"Running bond", basket:"Basket weave", stack:"Stack bond",
   zig:"Stretcher", ishape:"Stretcher", grid:"Grid", staggered:"Staggered", combo5:"Random modular", tiles:"Grid"};
 const imgOf = (id,c) => ROOT+"assets/img/laid/"+id+"-"+c+".webp";
 
@@ -64,6 +65,10 @@ const GEO = {
       for(let x=-2*w+off; x<W+w; x+=w) o.push([[x,y],[x+e,y],[x+e,y+d],[x+w-e,y+d],[x+w-e,y],[x+w,y],[x+w,y+T],[x+w-e,y+T],[x+w-e,y+T-d],[x+e,y+T-d],[x+e,y+T],[x,y+T]]); } return o; },
   combo5(W,H){ const u=110,o=[],m=[[[0,0,2,2],[2,0,1,1],[2,1,1,1],[0,2,2,1],[2,2,1,1]],[[0,0,1,2],[1,0,2,1],[1,1,1,1],[2,1,1,2],[0,2,2,1]]];
     for(let j=-1;j*3*u<H+3*u;j++) for(let i=-1;i*3*u<W+3*u;i++) m[(i+j+8)%2].forEach(b=>o.push(R(i*3*u+b[0]*u, j*3*u+b[1]*u, b[2]*u, b[3]*u))); return o; },
+  diamond(W,H){ const w=240,h=160,o=[]; for(let j=-2;j*h/2<H+h;j++) for(let i=-2;i*w<W+w;i++){ const x=i*w+(j%2?w/2:0), y=j*h/2;
+      o.push([[x,y-h/2],[x+w/2,y],[x,y+h/2],[x-w/2,y]]); } return o; },
+  hex(W,H){ const r=110,dx=r*1.5,dy=r*Math.sqrt(3),o=[]; for(let i=-2;i*dx<W+2*r;i++) for(let j=-2;j*dy<H+2*r;j++){ const cx=i*dx, cy=j*dy+(i%2?dy/2:0);
+      o.push([0,1,2,3,4,5].map(k=>[cx+r*Math.cos(k*Math.PI/3), cy+r*Math.sin(k*Math.PI/3)])); } return o; },
   tiles(W,H){ const o=[]; for(let y=-300;y<H+300;y+=300) for(let x=-300;x<W+300;x+=300) o.push(R(x,y,300,300)); return o; }
 };
 function rng(seed){ let a=seed>>>0; return ()=>{ a|=0; a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
@@ -318,7 +323,7 @@ $("surprise").addEventListener("click", ()=>{
 /* ---------- catalogue, detail, compare ---------- */
 const cmpSet = new Set();
 function renderGrid(){
-  $("grid").innerHTML = PRODUCTS.map((p,i)=>{ const v=viewOf(p,p.c); return (
+  $("grid").innerHTML = PRODUCTS.map((p,i)=>{ const v=viewOf(p,p.c,1); return (
     '<article class="p" data-uses="'+p.uses.join(" ")+'">'+
       '<button class="ph" type="button" data-open="'+p.id+'" aria-label="View '+p.name+' details"><img id="img-'+p.id+'" src="'+v.src+'" alt="'+v.cap+'" loading="'+(i<3?"eager":"lazy")+'" width="1100" height="825"><span class="tag">'+p.size+'</span><span class="kind'+(v.real?' real':'')+'" id="kind-'+p.id+'">'+(KIND[v.real]||'Laid preview')+'</span></button>'+
       '<div class="row"><h3>'+p.name+'</h3><div class="dots">'+coloursOf(p).map(c=>'<button type="button" class="dot sm" id="dot-'+p.id+'-'+c+'" data-p="'+p.id+'" data-c="'+c+'" aria-label="'+nameOf(c)+'" title="'+nameOf(c)+'" aria-pressed="'+(c===p.c)+'" style="background:'+hexOf(c)+'"></button>').join("")+'</div></div>'+
@@ -328,7 +333,7 @@ function renderGrid(){
     '</article>'); }).join("");
 }
 function askLink(p){ return waLink("Hello Satyam Pavers, I would like to enquire about "+p.name+" ("+nameOf(p.c).toLowerCase()+")."); }
-function setColour(p,c){ p.c=c; const v=viewOf(p,c), im=$("img-"+p.id); im.src=v.src; im.alt=v.cap;
+function setColour(p,c){ p.c=c; const v=viewOf(p,c,1), im=$("img-"+p.id); im.src=v.src; im.alt=v.cap;
   const k=$("kind-"+p.id); k.textContent=KIND[v.real]||"Laid preview"; k.classList.toggle("real",!!v.real);
   document.querySelectorAll('.dot[data-p="'+p.id+'"]').forEach(d=>d.setAttribute("aria-pressed", d.dataset.c===c)); $("ask-"+p.id).href=askLink(p); }
 $("grid").addEventListener("click", e=>{

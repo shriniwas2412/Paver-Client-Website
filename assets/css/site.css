@@ -601,3 +601,5 @@ main h2{font-family:var(--serif);text-transform:none;letter-spacing:-.015em;font
 .calc-out div{background:var(--soft);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:grid;gap:4px}
 .calc-out b{font-family:var(--serif);font-size:1.8rem;line-height:1}
 .calc-out span{font-size:.85rem;opacity:.75}
+.p .ph img[src*="/laid/"]{aspect-ratio:3/4.2}
+.p .ph .kind:not(.real){display:none}

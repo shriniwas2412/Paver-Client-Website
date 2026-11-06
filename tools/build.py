@@ -61,14 +61,19 @@ PRODUCTS = [
        size="Set of 5 blocks", thick=[60,80], per=None, perSet=2, load="Foot to light", patterns=["combo5"],
        best=["Garden and villa driveways","Clubhouse and resort paths","Courtyards with a natural-stone look"],
        answer="The Combo 5 Series is a set of five block sizes laid together for a random, natural-stone look. It comes in 60 and 80 mm; one set covers about 2 square feet. Mixing two colours gives a richer finish."),
+  dict(id="diamond", slug="diamond-paver-blocks", code="DM", name="Diamond", full="Diamond Paver Blocks", alt="Rhombus-shaped paver", uses=["walk","drive"], c="red",
+       desc="Diamond-shaped blocks that lock edge to edge in a crisp lattice. Two colours laid in alternate rows give a striking pattern for entrances and plazas.",
+       size="On request", thick=[60,80], per=None, load="Foot to light", patterns=["diamond"],
+       best=["Entrances and forecourts","Plazas and mall walkways","Society and temple courtyards"],
+       answer="Diamond paver blocks are rhombus-shaped concrete blocks that lock edge to edge in a lattice. They come in 60 and 80 mm and suit entrances, forecourts, plazas and courtyards, laid in one colour or in two-colour rows."),
   dict(id="cosmic", slug="cosmic-paver-blocks", code="CS", name="Cosmic", full="Cosmic Paver Blocks", alt="Curved three-arm interlocking paver", uses=["walk","drive"], c="yellow", noRender=True, lay="Interlocking, laid in flowing rows",
        desc="Three curved arms lock into each other for a flowing, decorative floor. The dotted face gives a sure grip underfoot.",
        size="On request", thick=[60,80], per=None, load="Foot to light", patterns=[],
        best=["Temple and school courtyards","Society walkways","Decorative driveways"],
        answer="Cosmic paver blocks have three curved arms that lock together in flowing rows. The dotted face gives grip underfoot. They come in 60 and 80 mm, in red and yellow, for courtyards, walkways and decorative driveways."),
-  dict(id="hexagon", slug="hexagon-3d-paver-tiles", code="HX", name="Hexagon Tile", full="Hexagon 3D-Cube Paver Tiles", alt="Grooved 3D-cube hexagon tile", uses=["walk"], c="grey", noRender=True, lay="Hexagon grid (3D-cube effect)",
+  dict(id="hexagon", slug="hexagon-3d-paver-tiles", code="HX", name="Hexagon Tile", full="Hexagon 3D-Cube Paver Tiles", alt="Grooved 3D-cube hexagon tile", uses=["walk"], c="grey", lay="Hexagon grid (3D-cube effect)",
        desc="A hexagon with three grooved faces that read as a 3D cube when laid. The honeycomb layout spreads foot traffic evenly, so it suits wide walkways, parks and plazas as well as terraces and lobbies.",
-       size="On request", thick=[], per=None, load="Foot traffic", patterns=[],
+       size="On request", thick=[], per=None, load="Foot traffic", patterns=["hex"],
        best=["Wide walkways, parks and plazas","Building entrances and lobbies","Terraces and feature pathways"],
        answer="Hexagon 3D-cube paver tiles have three grooved faces that read as a cube when laid together in a honeycomb. They suit wide walkways, parks, plazas, building entrances and terraces with foot traffic."),
   dict(id="slate", slug="slate-finish-paver-slabs", code="SL", name="Slate Finish Slab", full="Slate Finish Paver Slabs", alt="Natural slate texture", uses=["walk"], c="grey", noRender=True, lay="Grid or staggered",
@@ -120,7 +125,7 @@ PHOTOS = {
 COLOURS = {"grey":"Grey","red":"Red","yellow":"Yellow","orange":"Orange","black":"Black","brown":"Brown","beige":"Beige"}
 HEX = {"grey":"#85837D","red":"#9E4732","yellow":"#C79B4B","orange":"#BF6B3D","black":"#2B2A28","brown":"#4A2A22","beige":"#C9B9A0"}
 RENDER_COLOURS = ["grey","red","yellow","orange"]
-PATTERN_NAMES = {"herringbone":"Herringbone","bond":"Running bond","basket":"Basket weave","stack":"Stack bond","zig":"Stretcher","ishape":"Stretcher","grid":"Grid","staggered":"Staggered","combo5":"Random modular","tiles":"Grid"}
+PATTERN_NAMES = {"diamond": "Diamond", "hex": "Honeycomb", "herringbone":"Herringbone","bond":"Running bond","basket":"Basket weave","stack":"Stack bond","zig":"Stretcher","ishape":"Stretcher","grid":"Grid","staggered":"Staggered","combo5":"Random modular","tiles":"Grid"}
 USE_NAMES = {"walk":"Walkways","drive":"Driveways","heavy":"Heavy duty","edge":"Edging"}
 
 FAQ = [
@@ -214,7 +219,9 @@ def colours_of(p):
     for x in PHOTOS.get(p["id"], []):
         if x["c"] not in cs: cs.append(x["c"])
     return cs
-def view_of(p, c, root):
+def view_of(p, c, root, card=False):
+    if card and not p.get("noRender") and c in RENDER_COLOURS:
+        return root + f'assets/img/laid/{p["id"]}-{c}.webp', False, f'{p["name"]} pattern in {COLOURS[c].lower()}'
     ims = images_of(p)
     ph = (ims[0] if ims and c == p["c"] else None) or next((x for x in ims if x["c"] == c), None) or (ims[0] if ims and p.get("noRender") else None)
     if ph: return root + f'assets/img/{ph["f"]}.webp', ph["kind"], ph["cap"]
@@ -254,7 +261,7 @@ def org_schema():
             "logo": SITE_URL + "assets/brand/logo-512.png", "telephone": CONTACT["tel"],
             "contactPoint": {"@type": "ContactPoint", "telephone": CONTACT["tel"], "contactType": "sales", "areaServed": "IN", "availableLanguage": ["en", "hi"]},
             "address": loc_schema(LOCATIONS[0])["address"],
-            "description": "Manufacturer of concrete paver blocks, kerb stones and paver tiles in Mandideep, supplying malls, schools, factories, housing societies, petrol pumps and homes across Bhopal and central Madhya Pradesh."}
+            "description": "Manufacturer of concrete paver blocks, kerb stones and paver tiles in Mandideep, supplying malls, stadiums, schools, hospitals, factories, housing societies, petrol pumps and homes across Bhopal and central Madhya Pradesh."}
 def ld(graph): return '<script type="application/ld+json">' + json.dumps({"@context": "https://schema.org", "@graph": graph}, ensure_ascii=False) + "</script>"
 def crumbs(items):
     return {"@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": i + 1, "name": n, "item": SITE_URL + u} for i, (n, u) in enumerate(items)]}
@@ -383,7 +390,7 @@ def footer(root):
 
 # ---------- shared blocks ----------
 def card(p, root, i=0, interactive=True):
-    src, real, cap = view_of(p, p["c"], root)
+    src, real, cap = view_of(p, p["c"], root, card=True)
     href = f'{root}products/{p["slug"]}/'
     dots = "".join(f'<button type="button" class="dot sm" id="dot-{p["id"]}-{c}" data-p="{p["id"]}" data-c="{c}" aria-label="{COLOURS[c]}" title="{COLOURS[c]}" aria-pressed="{str(c == p["c"]).lower()}" style="background:{HEX[c]}"></button>' for c in colours_of(p)) if interactive else ""
     cmp = f'<button type="button" class="cmp" id="cmp-{p["id"]}" data-cmp="{p["id"]}" aria-pressed="false"><b>✓</b>Compare</button>' if interactive else ""
@@ -439,7 +446,7 @@ def build_area(a):
   <div class="label">Delivery area · {a["km"]} km from our factory</div>
   <h1 class="h1">Paver blocks in {e(n)}</h1>
   <p class="answer">Satyam Pavers delivers concrete paver blocks, interlocking tiles and kerb stones to {e(n)} from our factory in Mandideep, about {a["km"]} km away. {e(a["note"])}</p>
-  <div class="row2" style="margin-top:20px"><a class="btn btn-primary" href="#enquiry">Send enquiry</a><a class="link" href="../products/">See all 13 ranges</a></div>
+  <div class="row2" style="margin-top:20px"><a class="btn btn-primary" href="#enquiry">Send enquiry</a><a class="link" href="../products/">See all 14 ranges</a></div>
   <h2 class="h2" style="margin-top:56px">Popular in {e(n)}</h2>
   <div class="products" style="margin-top:20px">{cards}</div>
   <div class="prod-cols" style="margin-top:56px" id="enquiry">
@@ -490,7 +497,7 @@ def build_guide(g):
   <p class="answer">{e(g["answer"])}</p>
   <ol class="guide-steps">{steps}</ol>
   <p style="margin-top:32px">Not sure which thickness you need? See the <a class="link" href="{root}#load">load guide</a> · Also read: <a class="link" href="{root}{other["slug"]}/">{e(other["h1"])}</a></p>
-  <div class="row2" style="margin-top:24px"><a class="btn btn-primary" href="{root}contact/">Send enquiry</a><a class="link" href="{root}products/">See all 13 ranges</a></div>
+  <div class="row2" style="margin-top:24px"><a class="btn btn-primary" href="{root}contact/">Send enquiry</a><a class="link" href="{root}products/">See all 14 ranges</a></div>
 </div></section></main>
 '''
     write(g["slug"] + "/index.html", head(root, g["slug"] + "/", g["title"], g["desc"], schema=ld(graph)) + header(root) + main + footer(root))
@@ -531,7 +538,7 @@ def build_home():
     graph = [org_schema(), {"@type": "WebSite", "@id": SITE_URL + "#website", "name": BRAND, "url": SITE_URL, "publisher": {"@id": ORG_ID}, "inLanguage": "en-IN"}] + [loc_schema(l) for l in LOCATIONS] + [faq_schema(FAQ),
              {"@type": "ItemList", "name": "Satyam Pavers products", "itemListElement": [{"@type": "ListItem", "position": i + 1, "url": SITE_URL + "products/" + p["slug"] + "/", "name": p["full"]} for i, p in enumerate(PRODUCTS)]}]
     page = head("", "", "Paver Block Manufacturer in Bhopal & Mandideep | Satyam Pavers",
-                "Concrete paver blocks, interlocking tiles and kerb stones made in Mandideep for Bhopal. 13 ranges, 60–100 mm. Design your floor online and send an enquiry.",
+                "Concrete paver blocks, interlocking tiles and kerb stones made in Mandideep for Bhopal. 14 ranges, 60–100 mm. Design your floor online and send an enquiry.",
                 schema=ld(graph), extra='<link rel="preload" as="image" href="assets/img/scenes/hero.webp">\n')
     write("index.html", page + header("") + body + footer(""))
 
@@ -544,7 +551,7 @@ def build_products_index():
     main = f'''<main id="main"><section><div class="wrap">
   <nav class="crumbs" aria-label="Breadcrumb"><a href="../">Home</a> / <span>Products</span></nav>
   <div class="head"><div><div class="label">Catalogue</div><h1 class="h1">Paver blocks, tiles &amp; kerb stones</h1>
-  <p class="answer">{BRAND} makes 13 ranges of concrete paving at its Mandideep factory near Bhopal: interlocking paver blocks (zig-zag, I-shape, rectangular, square, cosmic, Combo 5), decorative finishes (slate, anti-skid, cobble, speckled, hexagon 3D tiles), concrete paver tiles and kerb stones, in 60, 80 and 100 mm for foot traffic up to heavy vehicles.</p></div></div>
+  <p class="answer">{BRAND} makes 14 ranges of concrete paving at its Mandideep factory near Bhopal: interlocking paver blocks (zig-zag, I-shape, rectangular, square, diamond, cosmic, Combo 5), decorative finishes (slate, anti-skid, cobble, speckled, hexagon 3D tiles), concrete paver tiles and kerb stones, in 60, 80 and 100 mm for foot traffic up to heavy vehicles.</p></div></div>
   <div class="products">{cards}</div>
   <h2 class="h2" style="margin-top:64px">Size and thickness at a glance</h2>
   <div class="tbl" style="margin-top:16px"><table class="spec"><thead><tr><th>Product</th><th>Size</th><th>Thickness</th><th>Load</th></tr></thead><tbody>{rows}</tbody></table></div>
@@ -552,7 +559,7 @@ def build_products_index():
 </div></section></main>
 '''
     write("products/index.html", head(root, "products/", "Paver Block Types & Sizes | Interlocking Tiles, Kerb Stones — Satyam Pavers",
-          "All 13 Satyam Pavers ranges: zig-zag, I-shape, rectangular, square, cosmic, hexagon, slate, anti-skid, cobble, paver tiles and kerb stones. Sizes, thickness and uses.", schema=ld(graph)) + header(root) + main + footer(root))
+          "All 14 Satyam Pavers ranges: zig-zag, I-shape, rectangular, square, diamond, cosmic, hexagon, slate, anti-skid, cobble, paver tiles and kerb stones. Sizes, thickness and uses.", schema=ld(graph)) + header(root) + main + footer(root))
 
 def product_faq(p):
     out = []
@@ -669,7 +676,7 @@ def build_location(l):
   <div class="products" style="margin-top:20px">{cards}</div>
   <div class="prod-cols" style="margin-top:56px">
     <div>{enquiry_form(root, city=l["city"])}</div>
-    <div><h2 class="h2">Our other location</h2><div class="places">{place_html(other, root)}</div><p style="margin-top:20px"><a class="link" href="../products/">See all 13 product ranges</a></p></div>
+    <div><h2 class="h2">Our other location</h2><div class="places">{place_html(other, root)}</div><p style="margin-top:20px"><a class="link" href="../products/">See all 14 product ranges</a></p></div>
   </div>
 </div></section></main>
 '''
