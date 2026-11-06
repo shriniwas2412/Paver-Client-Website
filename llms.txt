@@ -1,0 +1,57 @@
+# Satyam Pavers
+
+> Satyam Pavers (Suveesha Engineers & Industries Pvt. Ltd.) manufactures concrete paver blocks, interlocking tiles, paver tiles and kerb stones at its factory in Mandideep, Madhya Pradesh, and sells from a sales office in MP Nagar, Bhopal. It supplies shopping malls, schools and colleges, factories and warehouses, housing societies, petrol pumps and homes, and delivers across Bhopal, Raisen, Sehore, Vidisha, Narmadapuram and Indore. Prices are given on enquiry only.
+
+## Locations
+- [Sales office](https://shriniwas2412.github.io/Paver-Client-Website/paver-blocks-bhopal/): Kanha Building, Plot No. 190, near Hotel Kanha, near Sargam Cinema, Zone-II, Maharana Pratap Nagar, Bhopal, Madhya Pradesh 462011
+- [Factory](https://shriniwas2412.github.io/Paver-Client-Website/paver-blocks-mandideep/): Suveesha Engineers & Industries Pvt. Ltd., Industrial Area, Mandideep, Raisen district, Madhya Pradesh 462046
+
+## Products
+- [Rectangular Paver Blocks](https://shriniwas2412.github.io/Paver-Client-Website/products/rectangular-paver-blocks/): Rectangular paver blocks are 200 × 100 mm concrete blocks made in 60, 80 and 100 mm thickness. Laid in herringbone they handle cars and turning wheels; laid in running bond or basket weave they suit paths and courtyards. About 4.6 blocks cover one square foot.
+- [Zig-Zag (Uni) Interlocking Paver Blocks](https://shriniwas2412.github.io/Paver-Client-Website/products/zig-zag-paver-blocks/): Zig-zag paver blocks, also called uni pavers, are 225 × 112 mm interlocking concrete blocks with wavy edges that lock on all sides. They come in 60, 80 and 100 mm and in grey, red, black, brown and yellow. About 3.9 blocks cover one square foot.
+- [I-Shape (Behaton / Dumbbell) Paver Blocks](https://shriniwas2412.github.io/Paver-Client-Website/products/i-shape-paver-blocks/): I-shape paver blocks, also called Behaton or dumbbell pavers, are 200 × 165 mm interlocking blocks that spread wheel loads across the floor. In 80 and 100 mm they suit truck yards, bus stands and warehouses; 60 mm suits home driveways. About 3.6 blocks cover one square foot.
+- [Square Paver Blocks](https://shriniwas2412.github.io/Paver-Client-Website/products/square-paver-blocks/): Square paver blocks are 200 × 200 mm concrete blocks in 60 and 80 mm thickness, laid in a grid or staggered. They suit courtyards, terraces and garden paths. About 2.3 blocks cover one square foot.
+- [Combo 5 Series Paver Set](https://shriniwas2412.github.io/Paver-Client-Website/products/combo-5-series-pavers/): The Combo 5 Series is a set of five block sizes laid together for a random, natural-stone look. It comes in 60 and 80 mm; one set covers about 2 square feet. Mixing two colours gives a richer finish.
+- [Cosmic Paver Blocks](https://shriniwas2412.github.io/Paver-Client-Website/products/cosmic-paver-blocks/): Cosmic paver blocks have three curved arms that lock together in flowing rows. The dotted face gives grip underfoot. They come in 60 and 80 mm, in red and yellow, for courtyards, walkways and decorative driveways.
+- [Hexagon 3D-Cube Paver Tiles](https://shriniwas2412.github.io/Paver-Client-Website/products/hexagon-3d-paver-tiles/): Hexagon 3D-cube paver tiles have three grooved faces that read as a cube when laid together in a honeycomb. They suit wide walkways, parks, plazas, building entrances and terraces with foot traffic.
+- [Slate Finish Paver Slabs](https://shriniwas2412.github.io/Paver-Client-Website/products/slate-finish-paver-slabs/): Slate finish paver slabs have a moulded natural-slate face with ripples and veins, in grey and black. They give a split-stone look for garden paths, patios and poolsides.
+- [Anti-Skid Paver Blocks](https://shriniwas2412.github.io/Paver-Client-Website/products/anti-skid-paver-blocks/): Anti-skid paver blocks have a fine leather-grain face that stays grippy when wet. They are made for ramps, steps, poolsides and walkways that see heavy monsoon rain.
+- [Cobble Stone Pavers](https://shriniwas2412.github.io/Paver-Client-Website/products/cobble-stone-pavers/): Cobble stone pavers are chunky concrete cobbles with a rough split face, in beige and black. They suit heritage-style driveways, courtyards, tree surrounds and landscape edging.
+- [Speckled Finish Paver Blocks](https://shriniwas2412.github.io/Paver-Client-Website/products/speckled-finish-paver-blocks/): Speckled finish paver blocks have a smooth face scattered with stone chips, like terrazzo. They suit lobbies, porches, terraces and clubhouse paths.
+- [Concrete Kerb Stones](https://shriniwas2412.github.io/Paver-Client-Website/products/kerb-stones/): Concrete kerb stones edge roads, driveways, parking areas, medians and garden beds, and hold paver blocks in place. They are made in straight and curved profiles and are supplied by the running foot.
+- [Concrete Paver Tiles](https://shriniwas2412.github.io/Paver-Client-Website/products/paver-tiles/): Concrete paver tiles are 300 × 300 mm flat tiles, 25 or 30 mm thick, laid on mortar. Faces include brick-weave, four-square and nine-square rock-face, in yellow, red and grey. One tile covers about one square foot.
+
+## Delivery areas
+- [Paver blocks in Obedullaganj](https://shriniwas2412.github.io/Paver-Client-Website/paver-blocks-obedullaganj/): delivered from Mandideep, about 12 km
+- [Paver blocks in Raisen](https://shriniwas2412.github.io/Paver-Client-Website/paver-blocks-raisen/): delivered from Mandideep, about 50 km
+- [Paver blocks in Narmadapuram](https://shriniwas2412.github.io/Paver-Client-Website/paver-blocks-narmadapuram/): delivered from Mandideep, about 55 km
+- [Paver blocks in Sehore](https://shriniwas2412.github.io/Paver-Client-Website/paver-blocks-sehore/): delivered from Mandideep, about 65 km
+- [Paver blocks in Vidisha](https://shriniwas2412.github.io/Paver-Client-Website/paver-blocks-vidisha/): delivered from Mandideep, about 85 km
+
+## Guides
+- [How to lay paver blocks](https://shriniwas2412.github.io/Paver-Client-Website/guides/how-to-lay-paver-blocks/): A paver floor lasts when the ground under it is right. Dig to the depth your load needs, build a compacted stone sub-base, spread a thin even sand bed, fix kerbs at the edges, lay the blocks in pattern, compact them and brush sand into the joints.
+- [Paver block care and maintenance](https://shriniwas2412.github.io/Paver-Client-Website/guides/paver-block-maintenance/): Paver blocks need little care: sweep regularly, wash once or twice a year, top up joint sand when it washes out, and lift and re-lay any patch that sinks. Unlike a concrete slab, a paver floor can always be repaired block by block.
+
+- [Paver block calculator](https://shriniwas2412.github.io/Paver-Client-Website/tools/paver-calculator/): estimates block count from area, with 5% wastage.
+
+## Common questions
+- Q: How do I get the price of paver blocks in Bhopal?
+  A: Send an enquiry with your area in square feet, the block you like, its thickness and colour, and your site location. Our sales team replies the same working day with factory-direct terms for your quantity, with no dealer in between.
+- Q: Which thickness do I need for a car driveway?
+  A: 60 mm works for a home driveway with occasional car use. 80 mm is the safer choice for daily cars, SUVs and colony roads. For trucks and forklifts, use 100 mm. The load guide above shows the full build-up.
+- Q: How many paver blocks are in one square foot?
+  A: About 4.6 rectangular blocks, 3.9 zig-zag blocks, 3.6 I-shape blocks or 2.3 square blocks per sq ft. Add about 5% for cutting at the edges. The pattern studio and enquiry form work this out for you.
+- Q: Do you deliver outside Bhopal?
+  A: Yes. We deliver from our Mandideep factory to Bhopal, Obedullaganj, Raisen, Sehore, Vidisha, Narmadapuram and Indore. The delivery date depends on quantity and stock and is confirmed with your order.
+- Q: What are uni pavers and Behaton pavers?
+  A: They are trade names for two interlocking shapes. A uni paver is the zig-zag block: the most popular choice for driveways, parking, petrol pumps and industrial yards because its wavy edges resist braking and turning wheels. A Behaton (I-shape or dumbbell) paver suits society internal roads, footpaths and commercial walkways. Hexagon pavers form a honeycomb that suits wide walkways, parks and plazas.
+- Q: Will the colour fade?
+  A: The pigment is mixed into the concrete, so the colour runs through the block rather than sitting on top as paint. All concrete pavers lighten slightly over years of sun; washing them once or twice a year keeps them bright.
+- Q: Can I see the blocks before I order?
+  A: Yes. Visit our sales office in MP Nagar, Bhopal, or our factory in Mandideep. Send an enquiry first and we will keep samples of the blocks you want ready, or send sample blocks for your architect or site engineer.
+- Q: Are pavers better than a concrete slab for a driveway?
+  A: Pavers let rainwater drain through the joints, do not crack across the whole surface, and can be lifted and re-laid if a pipe or cable needs work. A cracked slab has to be broken out.
+
+## Contact
+- [Send an enquiry](https://shriniwas2412.github.io/Paver-Client-Website/contact/): enquiry form and WhatsApp, mobile +91 91711 10110
+- Satyam Pavers is a brand of Suveesha Engineers & Industries Pvt. Ltd..

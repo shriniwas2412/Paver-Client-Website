@@ -1,0 +1,359 @@
+<main id="home">
+  <div class="hero">
+    <div class="hero-stage" aria-hidden="true"><div class="stage walk" id="heroStage"><canvas id="heroCanvas"></canvas></div></div>
+    <div class="wrap"><div class="inner">
+      <h1 class="label hero-h1">Paver blocks &amp; kerb stones in Bhopal · Made in Mandideep</h1>
+      <p class="display" id="heroTitle">Your driveway, done right the first time</p>
+      <p class="lead" id="heroLead">Pick a block, try it in your colours, and know how many you need before anyone comes to site. Made in our Mandideep factory, delivered across Bhopal.</p>
+      <div class="iam">
+        <span class="label" data-i18n="mode.label">I am a</span>
+        <div class="seg" role="group" aria-label="Who are you?" id="modeSeg">
+          <button type="button" id="mode-home" data-mode="home" aria-pressed="true" data-i18n="mode.home">Homeowner</button>
+          <button type="button" id="mode-builder" data-mode="builder" aria-pressed="false" data-i18n="mode.builder">Builder</button>
+          <button type="button" id="mode-architect" data-mode="architect" aria-pressed="false" data-i18n="mode.architect">Architect</button>
+        </div>
+      </div>
+      <div class="cta">
+        <a class="btn btn-primary" id="heroCta1" href="#studio"><span id="heroCta1t">Design my driveway</span></a>
+        <a class="btn btn-line" id="heroCta2" href="#quote"><span id="heroCta2t">Send enquiry</span></a>
+      </div>
+    </div></div>
+    <div class="repave" role="group" aria-label="Repave the hero">
+      <span class="label" data-i18n="hero.repave">Repave it</span>
+    </div>
+  </div>
+
+  <div class="trust"><div class="wrap">
+    <div class="s"><b class="num">13</b><span data-i18n="trust.1">Product ranges</span></div>
+    <div class="s"><b class="num">7</b><span data-i18n="trust.2">Colours</span></div>
+    <div class="s"><b class="num">60–100<small style="font-size:.5em"> mm</small></b><span data-i18n="trust.3">A thickness for every load</span></div>
+    <div class="s"><b data-i18n="trust.4b">Direct</b><span data-i18n="trust.4">From our factory to your site</span></div>
+  </div></div>
+
+  <!-- PATTERN STUDIO -->
+  <section id="studio"><div class="wrap">
+    <div class="head"><div>
+      <div class="label" data-i18n="studio.eyebrow">Pattern studio</div>
+      <h2 data-i18n="studio.h2">Design your floor before you buy it</h2>
+      <p data-i18n="studio.lead">Choose a block, a laying pattern and up to three colours. The studio counts how many blocks of each colour your area needs.</p>
+    </div>
+    <button type="button" class="btn btn-line" id="surprise" data-i18n="studio.surprise">Surprise me</button>
+    </div>
+    <div class="studio">
+      <div class="stagebox">
+        <div class="stage" id="studioStage"><canvas id="studioCanvas" role="img" aria-label="Preview of your paving design"></canvas></div>
+        <div class="stage-ui">
+          <div class="seg" role="group" aria-label="View">
+            <button type="button" id="v-top" data-view="top" aria-pressed="true" aria-label="Top view" data-i18n="studio.top">Top</button>
+            <button type="button" id="v-walk" data-view="walk" aria-pressed="false" aria-label="Walk view" data-i18n="studio.walk">Walk</button>
+          </div>
+          <div class="seg" role="group" aria-label="Light">
+            <button type="button" id="l-noon" data-light="noon" aria-pressed="true" data-i18n="studio.noon">Noon</button>
+            <button type="button" id="l-dusk" data-light="dusk" aria-pressed="false" data-i18n="studio.dusk">Evening</button>
+            <button type="button" id="l-rain" data-light="rain" aria-pressed="false" data-i18n="studio.rain">Monsoon</button>
+          </div>
+        </div>
+        <div class="code" id="designCode">SP-ZZ</div>
+      </div>
+      <div class="panel">
+        <div class="ctl"><div class="label" data-i18n="studio.block">Block</div><div class="chips" id="sShape"></div></div>
+        <div class="ctl"><div class="label" data-i18n="studio.pattern">Laying pattern</div><div class="chips" id="sPattern"></div></div>
+        <div class="ctl"><div class="label" data-i18n="studio.field">Main colour</div><div class="dots" id="sField"></div></div>
+        <div class="ctl"><div class="label" data-i18n="studio.accent">Accent</div>
+          <div class="chips" id="sMode"></div>
+          <div class="row2" id="accentRow"><div class="dots" id="sAccent"></div>
+            <label class="hint" id="mixWrap" for="sMix" style="flex:1;min-width:140px">Mix <span id="mixVal" class="num">25%</span><input class="range" type="range" id="sMix" min="5" max="60" step="5" value="25"></label>
+          </div>
+        </div>
+        <div class="ctl"><div class="label" data-i18n="studio.border">Border</div>
+          <div class="row2"><div class="seg" role="group" aria-label="Border"><button type="button" id="b-off" data-b="0" aria-pressed="false">Off</button><button type="button" id="b-on" data-b="1" aria-pressed="true">On</button></div><div class="dots" id="sBorder"></div></div>
+        </div>
+        <div class="qty">
+          <label for="sArea" class="label" style="color:var(--ink)" data-i18n="studio.area">Your area (sq ft)</label>
+          <input id="sArea" type="number" min="1" step="1" value="1200" inputmode="numeric">
+          <div><span class="label" data-i18n="studio.need">You need about</span><div class="total num" id="sTotal">—</div></div>
+          <div class="split" id="sSplit"></div>
+        </div>
+        <div class="actions">
+          <a class="btn btn-wa" id="sSend" href="#" target="_blank" rel="noopener"><svg><use href="#wa"/></svg><span data-i18n="studio.send">Send design on WhatsApp</span></a>
+          <button type="button" class="link" id="sToQuote" data-i18n="studio.toquote">Use in my enquiry</button>
+        </div>
+      </div>
+    </div>
+  </div></section>
+
+  <!-- CATALOGUE -->
+  <section id="products" style="padding-top:0"><div class="wrap">
+    <div class="head">
+      <div><div class="label" data-i18n="products.eyebrow">Catalogue</div><h2 data-i18n="products.h2">Our products</h2><p data-i18n="products.lead">Thirteen ranges, from interlocking pavers to slate slabs and cobbles. Tap a product for sizes, finishes and laying patterns, or tick up to three to compare.</p></div>
+      <div class="seg filters" role="group" aria-label="Filter products by use">
+        <button type="button" id="f-all" data-f="all" aria-pressed="true" data-i18n="f.all">All</button>
+        <button type="button" id="f-walk" data-f="walk" aria-pressed="false" data-i18n="f.walk">Walkways</button>
+        <button type="button" id="f-drive" data-f="drive" aria-pressed="false" data-i18n="f.drive">Driveways</button>
+        <button type="button" id="f-heavy" data-f="heavy" aria-pressed="false" data-i18n="f.heavy">Heavy duty</button>
+        <button type="button" id="f-edge" data-f="edge" aria-pressed="false" data-i18n="f.edge">Edging</button>
+      </div>
+    </div>
+    <div class="products" id="grid">{{GRID}}</div>
+    <p class="swipe-hint">Swipe to see every range →</p>
+  </div></section>
+
+  <!-- APPLICATIONS -->
+  <section class="apps" id="uses"><div class="wrap">
+    <div class="head"><div>
+      <div class="label">Applications</div>
+      <h2>Where our pavers work</h2>
+      <p>The right block depends on what drives over it. Here is where each range does its best work.</p>
+    </div></div>
+    <div class="apps-grid">
+      <a class="app reveal" href="products/zig-zag-paver-blocks/"><img src="assets/img/stock/zigzag-parking.webp" alt="Zig-zag pavers in a parking bay" loading="lazy" width="1200" height="900"><div class="app-body"><div class="label">Zig-zag (uni) · 80–100 mm</div><h3>Parking, petrol pumps and driveways</h3><p>Wavy edges lock on every side, so the surface holds under braking and turning wheels.</p><span class="go">Zig-zag pavers</span></div></a>
+      <a class="app reveal" href="products/i-shape-paver-blocks/"><img src="assets/img/onsite/ishape.webp" alt="Housing-society road paved with grey I-shape pavers" loading="lazy" width="1200" height="900"><div class="app-body"><div class="label">I-shape (Behaton) · 60–80 mm</div><h3>Society roads and footpaths</h3><p>Locks on four sides and spreads wheel loads across colony roads and commercial walkways.</p><span class="go">I-shape pavers</span></div></a>
+      <a class="app reveal" href="products/hexagon-3d-paver-tiles/"><img src="assets/img/stock/hexagon-walkway.webp" alt="Hexagon pavers laid in a honeycomb park walkway" loading="lazy" width="1200" height="900"><div class="app-body"><div class="label">Hexagon · tiles · slate</div><h3>Parks, plazas and walkways</h3><p>Honeycomb and textured faces for wide paths where people walk, sit and gather.</p><span class="go">Walkway range</span></div></a>
+      <a class="app reveal" href="products/kerb-stones/"><img src="assets/img/onsite/curved.webp" alt="Kerb stones edging a colony road and paved footpath" loading="lazy" width="1200" height="900"><div class="app-body"><div class="label">Kerb stones</div><h3>Clean edges that keep paving in place</h3><p>Straight and curved kerbs for roads, medians, driveways and garden beds.</p><span class="go">Kerb stones</span></div></a>
+    </div>
+  </div></section>
+
+  <!-- SECTORS -->
+  <section class="sectors"><div class="wrap">
+    <div class="head"><div>
+      <div class="label">Who we supply</div>
+      <h2>Trusted on sites big and small</h2>
+      <p>From shopping malls and school campuses to factory yards, our blocks are laid wherever a floor has to work hard and look good for years.</p>
+    </div></div>
+    <ul class="sector-grid">
+      <li class="reveal"><b>Malls &amp; commercial complexes</b><span>Forecourts, walkways and parking that take heavy footfall</span></li>
+      <li class="reveal"><b>Schools &amp; colleges</b><span>Campus roads, assembly grounds and safe anti-skid paths</span></li>
+      <li class="reveal"><b>Factories &amp; warehouses</b><span>100 mm yards for trucks, forklifts and loading bays</span></li>
+      <li class="reveal"><b>Housing societies &amp; colonies</b><span>Internal roads, footpaths and kerbs, colour-matched</span></li>
+      <li class="reveal"><b>Petrol pumps &amp; parking</b><span>Zig-zag paving that holds under braking and turning</span></li>
+      <li class="reveal"><b>Homes, farmhouses &amp; temples</b><span>Driveways, porches, gardens and courtyards</span></li>
+    </ul>
+  </div></section>
+
+  <!-- LOAD GUIDE -->
+  <section id="load" style="background:var(--surface);border-block:1px solid var(--line)"><div class="wrap">
+    <div class="load">
+      <div>
+        <div class="label" data-i18n="load.eyebrow">Load guide</div>
+        <h2 style="font-size:clamp(2.1rem,4.4vw,3.5rem);margin-top:8px" data-i18n="load.h2">Which block for which load?</h2>
+        <p style="color:var(--muted);margin-top:10px" data-i18n="load.lead">Slide to whatever will drive on your floor. We show the thickness, strength grade and base it needs.</p>
+        <div class="slider" style="margin-top:28px">
+          <input class="range" type="range" id="loadRange" min="0" max="4" step="1" value="2" aria-label="Heaviest traffic on the floor" aria-valuetext="Cars and SUVs">
+          <div class="ticks" id="loadTicks"></div>
+        </div>
+        <div class="rec" id="loadRec" aria-live="polite"></div>
+      </div>
+      <div>
+        <div class="label" style="margin-bottom:10px">Cross-section, drawn to scale</div>
+        <svg class="section-svg" id="xsec" viewBox="0 0 560 380" role="img" aria-label="Cross-section of the paving layers"></svg>
+        <p class="note" style="margin-top:8px">Typical build-up. Your site engineer confirms the sub-base for your soil.</p>
+      </div>
+    </div>
+  </div></section>
+
+  <!-- MODE DESKS -->
+  <section id="desk"><div class="wrap">
+    <!-- homeowner -->
+    <div class="for-home">
+      <div class="head"><div><div class="label">Home guide</div><h2 data-i18n="desk.home.h2">From muddy yard to finished driveway</h2><p>Drag the line to see the change. A paved driveway stays clean in the monsoon, drains through its joints and can be lifted and re-laid if a pipe ever needs work.</p></div></div>
+      <div class="desk">
+        <div class="ba" id="ba">
+          <img src="assets/img/scenes/before.webp" draggable="false" alt="Unpaved muddy yard with tyre ruts" width="1600" height="1000" loading="lazy">
+          <img class="after" src="assets/img/scenes/after.webp" draggable="false" alt="The same yard paved with grey herringbone and red borders" width="1600" height="1000" loading="lazy">
+          <span class="tagl">Before</span><span class="tagr">After</span>
+          <div class="handle"></div>
+          <input type="range" id="baRange" min="0" max="100" value="50" aria-label="Compare before and after">
+        </div>
+        <div>
+          <div class="label" style="margin-bottom:6px">How your driveway gets laid</div>
+          <ol class="steps">
+            <li><div><b>Dig and level</b><p>Soft soil comes out and the ground is shaped to slope gently away from the house.</p></div></li>
+            <li><div><b>Build the base</b><p>Crushed stone is spread and compacted in layers. This is what carries the weight.</p></div></li>
+            <li><div><b>Spread the sand bed</b><p>About 30 mm of sharp sand, screeded flat, gives every block an even seat.</p></div></li>
+            <li><div><b>Lay and cut</b><p>Blocks go down in your pattern, with the border laid first and cut pieces at the edges.</p></div></li>
+            <li><div><b>Vibrate and fill joints</b><p>A plate compactor beds the blocks and fine sand is brushed into every joint to lock them.</p></div></li>
+          </ol>
+          <p class="note" style="margin-top:12px">Most home driveways take two to four days to lay, depending on size and weather.</p>
+        </div>
+      </div>
+    </div>
+    <!-- builder -->
+    <div class="for-builder">
+      <div class="head"><div><div class="label">Supply desk</div><h2 data-i18n="desk.builder.h2">Supply planning for builders</h2><p>Plan truckloads, check delivery reach from Mandideep, and plan supply for your whole project quantity in one enquiry.</p></div>
+        <a class="btn btn-ink" href="#quote" data-quick="colony">Send a bulk enquiry</a></div>
+      <div class="desk">
+        <div>
+          <div class="label" style="margin-bottom:6px">Truckload guide</div>
+          <div class="tbl"><table class="spec num"><thead><tr><th>Thickness</th><th>Approx. weight</th><th>Area per 14-tonne truck</th></tr></thead><tbody id="truckRows"></tbody></table></div>
+          <p class="note" style="margin-top:8px">Estimated from block weight. Actual loads depend on the vehicle and the product mix.</p>
+          <div class="label" style="margin:26px 0 8px">Ask us about</div>
+          <ul class="asklist">
+            <li>Phased delivery that follows your site schedule</li>
+            <li>One consolidated supply plan for the full project quantity</li>
+            <li>Colour matched across every batch you order</li>
+            <li>Kerbs and edging to finish colony roads</li>
+          </ul>
+        </div>
+        <div>
+          <div class="label" style="margin-bottom:6px">Delivery reach from Mandideep</div>
+          <div class="tbl"><table class="spec num"><thead><tr><th>Destination</th><th>Road distance</th><th>Drive time</th></tr></thead><tbody id="reachRows"></tbody></table></div>
+          <p class="note" style="margin-top:8px">Approximate road distances. Dispatch dates are confirmed with each order.</p>
+        </div>
+      </div>
+    </div>
+    <!-- architect -->
+    <div class="for-architect">
+      <div class="head"><div><div class="label">Spec desk</div><h2 data-i18n="desk.arch.h2">Spec desk for architects</h2><p>Strength grades, block dimensions and laying patterns for your drawings, plus a sample kit for client meetings.</p></div></div>
+      <div class="desk">
+        <div>
+          <div class="label" style="margin-bottom:6px">Grade by application, as recommended in IS 15658</div>
+          <div class="tbl"><table class="spec"><thead><tr><th>Grade</th><th>Traffic</th><th>Typical use</th><th>Thickness</th></tr></thead><tbody>
+            <tr><td class="mono">M30</td><td>Non-traffic</td><td>Footpaths, gardens, terraces</td><td class="mono">50–60 mm</td></tr>
+            <tr><td class="mono">M35</td><td>Light</td><td>Home driveways, car parks</td><td class="mono">60–80 mm</td></tr>
+            <tr><td class="mono">M40</td><td>Medium</td><td>Colony and city roads</td><td class="mono">80 mm</td></tr>
+            <tr><td class="mono">M50</td><td>Heavy</td><td>Bus depots, industrial yards</td><td class="mono">100 mm</td></tr>
+            <tr><td class="mono">M55</td><td>Very heavy</td><td>Container yards, ports</td><td class="mono">100–120 mm</td></tr>
+          </tbody></table></div>
+          <p class="note" style="margin-top:8px">Ask us for test reports for the grade and batch you are specifying.</p>
+          <div class="label" style="margin:26px 0 6px">Block dimensions</div>
+          <div class="tbl"><table class="spec"><thead><tr><th>Product</th><th>Size</th><th>Thickness</th><th>Per sq ft</th></tr></thead><tbody id="dimRows"></tbody></table></div>
+        </div>
+        <div>
+          <div class="label" style="margin-bottom:8px">Laying patterns</div>
+          <div class="minis" id="minis"></div>
+          <form class="form" id="kitForm" style="margin-top:26px">
+            <div><div class="label" style="color:var(--ink)">Request a sample kit</div><p class="note">One block of each product you pick, in the colours you need, for your client meeting.</p></div>
+            <label for="kName">Name<input id="kName" autocomplete="name" placeholder="Your name"></label>
+            <label for="kFirm">Practice<input id="kFirm" autocomplete="organization" placeholder="Firm or studio name"></label>
+            <div><div class="label" style="margin-bottom:6px">Products</div><div class="checks chips" id="kProducts"></div></div>
+            <button class="btn btn-wa" type="submit"><svg><use href="#wa"/></svg>Request kit on WhatsApp</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div></section>
+
+  <!-- PROCESS -->
+  <section style="padding-top:0"><div class="wrap">
+    <div class="head"><div><div class="label">How it's made</div><h2 data-i18n="process.h2">From mix to your site</h2></div></div>
+    <div class="process">
+      <div><span class="n">01</span><h3>Batch</h3><p>Cement, stone dust, grit and pigment are weighed for every batch.</p></div>
+      <div><span class="n">02</span><h3>Press</h3><p>Vibration and pressure pack the mix tight into steel moulds.</p></div>
+      <div><span class="n">03</span><h3>Cure</h3><p>Blocks are kept moist while they cure, so they reach full strength.</p></div>
+      <div><span class="n">04</span><h3>Check</h3><p>Sample blocks are checked for size, strength and water absorption.</p></div>
+      <div><span class="n">05</span><h3>Dispatch</h3><p>Counted, stacked and loaded for your site from Mandideep.</p></div>
+    </div>
+  </div></section>
+
+  <!-- QUOTE WIZARD -->
+  <section id="quote" style="background:var(--soft);border-top:1px solid var(--line)"><div class="wrap">
+    <div class="head"><div><div class="label" data-i18n="quote.eyebrow">Send enquiry</div><h2 data-i18n="quote.h2">Your enquiry in five steps</h2><p data-i18n="quote.lead">Takes about a minute. Your answers go straight to our sales team on WhatsApp.</p></div></div>
+    <form class="q" id="qForm" novalidate>
+      <ol class="q-steps" id="qSteps"></ol>
+      <div class="q-body">
+        <div class="q-prog" aria-hidden="true"><span id="qProgTxt">Step 1 of 5 · Use</span><i><b id="qProgBar"></b></i></div>
+        <div class="q-pane" data-step="0">
+          <h3>What are you paving?</h3>
+          <div class="opts" id="qUse" style="margin-top:16px"></div>
+        </div>
+        <div class="q-pane" data-step="1" hidden>
+          <h3>How big is it?</h3>
+          <div style="display:grid;gap:14px;margin-top:16px;max-width:520px">
+            <label for="qArea" style="display:grid;gap:6px;font-weight:500">Area in sq ft<input id="qArea" type="number" min="1" inputmode="numeric" placeholder="e.g. 2,500"></label>
+            <div class="chips" id="qAreaChips"></div>
+            <div class="note">Don’t know the area? Enter length and width in feet:</div>
+            <div class="row2"><input id="qLen" type="number" min="0" inputmode="decimal" placeholder="Length (ft)" aria-label="Length in feet" style="max-width:160px"> <span>×</span> <input id="qWid" type="number" min="0" inputmode="decimal" placeholder="Width (ft)" aria-label="Width in feet" style="max-width:160px"></div>
+            <p class="err" id="qAreaErr" hidden>Enter an area, or a length and width, to continue.</p>
+          </div>
+        </div>
+        <div class="q-pane" data-step="2" hidden>
+          <h3>Which block and colour?</h3>
+          <div style="display:grid;gap:16px;margin-top:16px;max-width:620px">
+            <p class="note" id="qRecNote"></p>
+            <div><div class="label" style="margin-bottom:6px">Block</div><div class="chips" id="qProduct"></div></div>
+            <div><div class="label" style="margin-bottom:6px">Colour</div><div class="dots" id="qColour"></div></div>
+            <div><div class="label" style="margin-bottom:6px">Thickness</div><div class="seg" id="qThick" role="group" aria-label="Thickness"></div></div>
+            <p class="note" id="qStudioNote" hidden></p>
+          </div>
+        </div>
+        <div class="q-pane" data-step="3" hidden>
+          <h3>Where and when?</h3>
+          <div style="display:grid;gap:16px;margin-top:16px;max-width:520px">
+            <label for="qCity" style="display:grid;gap:6px;font-weight:500">Delivery to<select id="qCity"></select></label>
+            <div><div class="label" style="margin-bottom:6px">When do you need it?</div><div class="chips" id="qWhen"></div></div>
+          </div>
+        </div>
+        <div class="q-pane" data-step="4" hidden>
+          <h3>Check and send</h3>
+          <div class="summary num" id="qSummary" style="margin-top:16px"></div>
+          <div class="row2" style="margin-top:4px">
+            <label for="qName" style="display:grid;gap:6px;font-weight:500;flex:1;min-width:200px">Your name (optional)<input id="qName" autocomplete="name"></label>
+          </div>
+          <p class="note">Tapping send opens WhatsApp with your enquiry typed in. Nothing is sent until you press send there.</p>
+        </div>
+        <div class="q-nav">
+          <button type="button" class="btn btn-line" id="qBack" data-i18n="q.back">Back</button>
+          <button type="submit" class="btn btn-ink" id="qNext" data-i18n="q.next">Next</button>
+        </div>
+      </div>
+    </form>
+  </div></section>
+
+  <!-- VISIT -->
+  <section id="visit"><div class="wrap">
+    <div class="exp">
+      <figure class="exp-photo"><img src="assets/img/stock/factory-pallets.webp" alt="Pallets of grey concrete paver blocks ready for dispatch" loading="lazy" width="1200" height="900"><figcaption>Cured blocks, palletised for truck delivery</figcaption></figure>
+      <div>
+        <div class="label">Where to find us</div>
+        <h2 style="font-size:clamp(2.1rem,4.4vw,3.4rem);margin-top:8px" data-i18n="visit.h2">See the blocks before you choose</h2>
+        <p style="color:var(--muted);margin-top:12px">Meet our team at the MP Nagar sales office, or see production at our Mandideep factory. Send an enquiry first and we will keep samples of the blocks you want ready.</p>
+        <div class="places">{{PLACES}}</div>
+      </div>
+    </div>
+    <div class="strip-head"><div class="label">Our range at a glance</div></div>
+    <div class="strip" id="photoStrip"></div>
+  </div></section>
+
+  <!-- FAQ -->
+  <section id="faq" style="padding-top:0"><div class="wrap">
+    <div class="faq">
+      <div><div class="label">FAQ</div><h2 style="font-size:clamp(2.1rem,4.4vw,3.4rem);margin-top:8px" data-i18n="faq.h2">Questions people ask us</h2><p style="color:var(--muted);margin-top:12px">Still unsure? <a href="contact/">Send us an enquiry</a> and our team will answer it.</p></div>
+      <div id="faqList">{{FAQ}}</div>
+    </div>
+  </div></section>
+
+  <div class="final" id="contact"><div class="wrap">
+    <div><div class="label">Send enquiry</div><h2 data-i18n="final.h2">Tell us your sq ft. We will reply today.</h2></div>
+    <div class="phone">
+      <a class="btn btn-wa" data-wa="Hello Satyam Pavers, I would like to send an enquiry about paver blocks." href="#" target="_blank" rel="noopener"><svg><use href="#wa"/></svg>Send enquiry on WhatsApp</a>
+      <a class="btn btn-line" href="contact/">Enquiry form</a>
+    </div>
+  </div></div>
+</main>
+<div class="tray" id="tray" hidden><span id="trayTxt">0 selected</span><button type="button" class="btn" id="trayGo">Compare</button><button type="button" class="x" id="trayClear">Clear</button></div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<dialog class="detail" id="detail" aria-labelledby="dName">
+  <button class="d-close" type="button" data-close aria-label="Close">×</button>
+  <div class="d-grid">
+    <div class="pic"><figure class="gal"><img id="dImg" alt="" width="1100" height="825"><figcaption id="dCap"></figcaption></figure><div class="thumbs" id="dThumbs"></div></div>
+    <div class="info">
+      <div><div class="label" id="dAlt"></div><h2 id="dName" style="margin-top:6px"></h2></div>
+      <p id="dDesc"></p>
+      <div><div class="label" style="margin-bottom:8px">Colour</div><div class="dots" id="dColours"></div></div>
+      <div class="tbl"><table class="spec"><tbody id="dSpec"></tbody></table></div>
+      <div class="row2">
+        <a class="btn btn-wa" id="dAsk" href="#" target="_blank" rel="noopener"><svg><use href="#wa"/></svg>Enquire</a>
+        <button type="button" class="link" id="dStudio">Try it in the studio</button>
+      </div>
+    </div>
+  </div>
+</dialog>
+<dialog class="compare" id="compare" aria-labelledby="cTitle">
+  <button class="d-close" type="button" data-close aria-label="Close">×</button>
+  <div style="padding:28px 24px">
+    <h2 id="cTitle" style="font-size:2.2rem;margin-bottom:16px">Compare blocks</h2>
+    <div class="tbl"><table class="spec" id="cTable"></table></div>
+  </div>
+</dialog>
+

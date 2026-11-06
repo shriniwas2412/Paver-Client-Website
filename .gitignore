@@ -1,0 +1,5 @@
+*.HEIC
+*.zip
+.DS_Store
+reference/
+.claude/

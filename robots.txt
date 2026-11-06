@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+Disallow: /src/
+Disallow: /tools/
+Disallow: /docs/
+
+# AI search crawlers are welcome
+User-agent: OAI-SearchBot
+Allow: /
+User-agent: Claude-SearchBot
+Allow: /
+User-agent: PerplexityBot
+Allow: /
+
+Sitemap: https://shriniwas2412.github.io/Paver-Client-Website/sitemap.xml
