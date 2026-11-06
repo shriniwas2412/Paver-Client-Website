@@ -66,9 +66,9 @@ PRODUCTS = [
        size="On request", thick=[60,80], per=None, load="Foot to light", patterns=["diamond"],
        best=["Entrances and forecourts","Plazas and mall walkways","Society and temple courtyards"],
        answer="Diamond paver blocks are rhombus-shaped concrete blocks that lock edge to edge in a lattice. They come in 60 and 80 mm and suit entrances, forecourts, plazas and courtyards, laid in one colour or in two-colour rows."),
-  dict(id="cosmic", slug="cosmic-paver-blocks", code="CS", name="Cosmic", full="Cosmic Paver Blocks", alt="Curved three-arm interlocking paver", uses=["walk","drive"], c="yellow", noRender=True, lay="Interlocking, laid in flowing rows",
+  dict(id="cosmic", slug="cosmic-paver-blocks", code="CS", name="Cosmic", full="Cosmic Paver Blocks", alt="Curved three-arm interlocking paver", uses=["walk","drive"], c="yellow", lay="Interlocking, laid in flowing rows",
        desc="Three curved arms lock into each other for a flowing, decorative floor. The dotted face gives a sure grip underfoot.",
-       size="On request", thick=[60,80], per=None, load="Foot to light", patterns=[],
+       size="On request", thick=[60,80], per=None, load="Foot to light", patterns=["cosmic"],
        best=["Temple and school courtyards","Society walkways","Decorative driveways"],
        answer="Cosmic paver blocks have three curved arms that lock together in flowing rows. The dotted face gives grip underfoot. They come in 60 and 80 mm, in red and yellow, for courtyards, walkways and decorative driveways."),
   dict(id="hexagon", slug="hexagon-3d-paver-tiles", code="HX", name="Hexagon Tile", full="Hexagon 3D-Cube Paver Tiles", alt="Grooved 3D-cube hexagon tile", uses=["walk"], c="grey", lay="Hexagon grid (3D-cube effect)",
@@ -76,24 +76,24 @@ PRODUCTS = [
        size="On request", thick=[], per=None, load="Foot traffic", patterns=["hex"],
        best=["Wide walkways, parks and plazas","Building entrances and lobbies","Terraces and feature pathways"],
        answer="Hexagon 3D-cube paver tiles have three grooved faces that read as a cube when laid together in a honeycomb. They suit wide walkways, parks, plazas, building entrances and terraces with foot traffic."),
-  dict(id="slate", slug="slate-finish-paver-slabs", code="SL", name="Slate Finish Slab", full="Slate Finish Paver Slabs", alt="Natural slate texture", uses=["walk"], c="grey", noRender=True, lay="Grid or staggered",
+  dict(id="slate", slug="slate-finish-paver-slabs", code="SL", name="Slate Finish Slab", full="Slate Finish Paver Slabs", alt="Natural slate texture", uses=["walk"], c="grey", lay="Grid or staggered",
        desc="A moulded natural-slate face with soft ripples and veins. Looks like split stone for a fraction of the cost.",
-       size="On request", thick=[], per=None, load="Foot traffic", patterns=[],
+       size="On request", thick=[], per=None, load="Foot traffic", patterns=["slab"],
        best=["Garden paths and patios","Poolside decks","Farmhouse and villa landscaping"],
        answer="Slate finish paver slabs have a moulded natural-slate face with ripples and veins, in grey and black. They give a split-stone look for garden paths, patios and poolsides."),
-  dict(id="antiskid", slug="anti-skid-paver-blocks", code="AS", name="Anti-Skid Block", full="Anti-Skid Paver Blocks", alt="Leather-grain grip surface", uses=["walk","drive"], c="grey", noRender=True, lay="Stretcher bond or grid",
+  dict(id="antiskid", slug="anti-skid-paver-blocks", code="AS", name="Anti-Skid Block", full="Anti-Skid Paver Blocks", alt="Leather-grain grip surface", uses=["walk","drive"], c="grey", lay="Stretcher bond or grid",
        desc="A fine leather-grain face that stays grippy when wet. Made for ramps, steps, poolsides and monsoon walkways.",
-       size="On request", thick=[], per=None, load="Foot to light", patterns=[],
+       size="On request", thick=[], per=None, load="Foot to light", patterns=["grip"],
        best=["Ramps and steps","Poolsides","Hospital and school walkways"],
        answer="Anti-skid paver blocks have a fine leather-grain face that stays grippy when wet. They are made for ramps, steps, poolsides and walkways that see heavy monsoon rain."),
-  dict(id="cobble", slug="cobble-stone-pavers", code="CB", name="Cobble Stone", full="Cobble Stone Pavers", alt="Rough split-face cobble", uses=["walk","drive"], c="beige", noRender=True, lay="Random rows or fan arcs",
+  dict(id="cobble", slug="cobble-stone-pavers", code="CB", name="Cobble Stone", full="Cobble Stone Pavers", alt="Rough split-face cobble", uses=["walk","drive"], c="yellow", lay="Random rows or fan arcs",
        desc="Chunky cobbles with a rough split face for heritage driveways, courtyards, tree surrounds and landscape edging.",
-       size="On request", thick=[], per=None, load="Foot to light", patterns=[],
+       size="On request", thick=[], per=None, load="Foot to light", patterns=["cobble"],
        best=["Heritage-style driveways","Tree surrounds and edging","Hotel and resort courtyards"],
        answer="Cobble stone pavers are chunky concrete cobbles with a rough split face, in beige and black. They suit heritage-style driveways, courtyards, tree surrounds and landscape edging."),
-  dict(id="speckled", slug="speckled-finish-paver-blocks", code="SP", name="Speckled Finish Block", full="Speckled Finish Paver Blocks", alt="Exposed-chip terrazzo look", uses=["walk"], c="grey", noRender=True, lay="Grid or staggered",
+  dict(id="speckled", slug="speckled-finish-paver-blocks", code="SP", name="Speckled Finish Block", full="Speckled Finish Paver Blocks", alt="Exposed-chip terrazzo look", uses=["walk"], c="grey", lay="Grid or staggered",
        desc="A smooth face scattered with stone chips, like terrazzo. A refined finish for lobbies, terraces and clubhouse paths.",
-       size="On request", thick=[], per=None, load="Foot traffic", patterns=[],
+       size="On request", thick=[], per=None, load="Foot traffic", patterns=["slabst"],
        best=["Lobbies and porches","Terraces","Clubhouse paths"],
        answer="Speckled finish paver blocks have a smooth face scattered with stone chips, like terrazzo. They suit lobbies, porches, terraces and clubhouse paths."),
   dict(id="curved", slug="kerb-stones", code="CK", name="Kerb Stones", full="Concrete Kerb Stones", alt="Straight and curved kerbs", uses=["edge"], c="grey",
@@ -125,7 +125,7 @@ PHOTOS = {
 COLOURS = {"grey":"Grey","red":"Red","yellow":"Yellow","orange":"Orange","black":"Black","brown":"Brown","beige":"Beige"}
 HEX = {"grey":"#85837D","red":"#9E4732","yellow":"#C79B4B","orange":"#BF6B3D","black":"#2B2A28","brown":"#4A2A22","beige":"#C9B9A0"}
 RENDER_COLOURS = ["grey","red","yellow","orange"]
-PATTERN_NAMES = {"diamond": "Diamond", "hex": "Honeycomb", "herringbone":"Herringbone","bond":"Running bond","basket":"Basket weave","stack":"Stack bond","zig":"Stretcher","ishape":"Stretcher","grid":"Grid","staggered":"Staggered","combo5":"Random modular","tiles":"Grid"}
+PATTERN_NAMES = {"cosmic": "Interlocking", "cobble": "Random rows", "slab": "Grid", "slabst": "Staggered", "grip": "Stretcher bond", "diamond": "Diamond", "hex": "Honeycomb", "herringbone":"Herringbone","bond":"Running bond","basket":"Basket weave","stack":"Stack bond","zig":"Stretcher","ishape":"Stretcher","grid":"Grid","staggered":"Staggered","combo5":"Random modular","tiles":"Grid"}
 USE_NAMES = {"walk":"Walkways","drive":"Driveways","heavy":"Heavy duty","edge":"Edging"}
 
 FAQ = [
@@ -392,10 +392,11 @@ def footer(root):
 def card(p, root, i=0, interactive=True):
     src, real, cap = view_of(p, p["c"], root, card=True)
     href = f'{root}products/{p["slug"]}/'
+    tag = "" if p["size"] == "On request" else f'<span class="tag">{e(p["size"])}</span>'
     dots = "".join(f'<button type="button" class="dot sm" id="dot-{p["id"]}-{c}" data-p="{p["id"]}" data-c="{c}" aria-label="{COLOURS[c]}" title="{COLOURS[c]}" aria-pressed="{str(c == p["c"]).lower()}" style="background:{HEX[c]}"></button>' for c in colours_of(p)) if interactive else ""
     cmp = f'<button type="button" class="cmp" id="cmp-{p["id"]}" data-cmp="{p["id"]}" aria-pressed="false"><b>✓</b>Compare</button>' if interactive else ""
     return (f'<article class="p" data-uses="{" ".join(p["uses"])}">'
-            f'<a class="ph" href="{href}" aria-label="{e(p["full"])}: sizes and details"><img id="img-{p["id"]}" src="{src}" alt="{e(cap)}" loading="{"eager" if i < 3 else "lazy"}" width="1100" height="825"><span class="tag">{e(p["size"])}</span><span class="kind{" real" if real else ""}" id="kind-{p["id"]}">{KIND[real]}</span></a>'
+            f'<a class="ph" href="{href}" aria-label="{e(p["full"])}: sizes and details"><img id="img-{p["id"]}" src="{src}" alt="{e(cap)}" loading="{"eager" if i < 3 else "lazy"}" width="800" height="1000">{tag}</a>'
             f'<div class="row"><h3><a href="{href}" style="text-decoration:none">{e(p["name"])}</a></h3><div class="dots">{dots}</div></div>'
             f'<div class="sub">{e(p["alt"])} · {e(p["load"])}</div>'
             f'<div class="actions"><a class="link" href="{href}">Details</a><a class="ask" id="ask-{p["id"]}" href="{e(wa_link("Hello Satyam Pavers, I would like to enquire about " + p["name"] + " (" + COLOURS[p["c"]].lower() + ")."))}" target="_blank" rel="noopener"><svg><use href="#wa"/></svg>Enquire</a>{cmp}</div>'

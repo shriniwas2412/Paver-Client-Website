@@ -38,7 +38,7 @@ function viewOf(p,c,card){ if(card && !p.noRender && COLOURS[c]) return {src:img
   if(p.noRender) return {src:ROOT+"assets/img/stock/placeholder.webp", real:false, cap:p.full};
   return {src:imgOf(p.id,c), real:false, cap:p.name+" laid in "+nameOf(c).toLowerCase()}; }
 const P = id => PRODUCTS.find(p => p.id === id);
-const PATTERN_NAMES = {diamond:"Diamond", hex:"Honeycomb", herringbone:"Herringbone", bond:"Running bond", basket:"Basket weave", stack:"Stack bond",
+const PATTERN_NAMES = {cosmic:"Interlocking", cobble:"Random rows", slab:"Grid", slabst:"Staggered", grip:"Stretcher bond", diamond:"Diamond", hex:"Honeycomb", herringbone:"Herringbone", bond:"Running bond", basket:"Basket weave", stack:"Stack bond",
   zig:"Stretcher", ishape:"Stretcher", grid:"Grid", staggered:"Staggered", combo5:"Random modular", tiles:"Grid"};
 const imgOf = (id,c) => ROOT+"assets/img/laid/"+id+"-"+c+".webp";
 
@@ -69,8 +69,17 @@ const GEO = {
       o.push([[x,y-h/2],[x+w/2,y],[x,y+h/2],[x-w/2,y]]); } return o; },
   hex(W,H){ const r=110,dx=r*1.5,dy=r*Math.sqrt(3),o=[]; for(let i=-2;i*dx<W+2*r;i++) for(let j=-2;j*dy<H+2*r;j++){ const cx=i*dx, cy=j*dy+(i%2?dy/2:0);
       o.push([0,1,2,3,4,5].map(k=>[cx+r*Math.cos(k*Math.PI/3), cy+r*Math.sin(k*Math.PI/3)])); } return o; },
+  cosmic(W,H){ const r=120,dx=r*1.5,dy=r*Math.sqrt(3),b=r*.22,o=[]; for(let i=-2;i*dx<W+2*r;i++) for(let j=-2;j*dy<H+2*r;j++){ const cx=i*dx, cy=j*dy+(i%2?dy/2:0), pts=[];
+      for(let k=0;k<6;k++){ const a0=k*Math.PI/3, a1=(k+1)*Math.PI/3, p0=[cx+r*Math.cos(a0),cy+r*Math.sin(a0)], p1=[cx+r*Math.cos(a1),cy+r*Math.sin(a1)], am=(a0+a1)/2, sg=k%2?-1:1;
+        for(let t=0;t<6;t++){ const u=t/6, bow=Math.sin(u*Math.PI)*b*sg; pts.push([p0[0]+(p1[0]-p0[0])*u+Math.cos(am)*bow, p0[1]+(p1[1]-p0[1])*u+Math.sin(am)*bow]); } }
+      o.push(pts); } return o; },
+  cobble(W,H){ const r=rng(3),o=[],h=140; for(let y=-h;y<H+h;y+=h){ let x=-200-r()*120; while(x<W+200){ const w=110+r()*90; o.push(R(x,y,w,h)); x+=w; } } return o; },
+  slab(W,H){ const o=[]; for(let y=-400;y<H+400;y+=400) for(let x=-400;x<W+400;x+=400) o.push(R(x,y,400,400)); return o; },
+  slabst(W,H){ const o=[]; let n=0; for(let y=-300;y<H+300;y+=300,n++) for(let x=(n%2?-150:-300);x<W+300;x+=300) o.push(R(x,y,300,300)); return o; },
+  grip(W,H){ const o=[]; let n=0; for(let y=-150;y<H+150;y+=150,n++) for(let x=(n%2?-150:-300);x<W+300;x+=300) o.push(R(x,y,300,150)); return o; },
   tiles(W,H){ const o=[]; for(let y=-300;y<H+300;y+=300) for(let x=-300;x<W+300;x+=300) o.push(R(x,y,300,300)); return o; }
 };
+const TEX={slab:"vein", slabst:"speck", grip:"grain", cobble:"rough", cosmic:"dots"};
 function rng(seed){ let a=seed>>>0; return ()=>{ a|=0; a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
 function hexRgb(h){ const n=parseInt(h.slice(1),16); return [n>>16,(n>>8)&255,n&255]; }
 function tint(hex,k){ const [r,g,b]=hexRgb(hex); const f=v=>Math.max(0,Math.min(255,Math.round(v*(1+k)))); return "rgb("+f(r)+","+f(g)+","+f(b)+")"; }
@@ -135,6 +144,13 @@ function paint(cv, cfg, opt){
     ctx.translate(bev*.7,bev*.7); ctx.strokeStyle=cfg.light==="rain"?"rgba(235,242,250,.28)":"rgba(255,255,255,.2)"; ctx.stroke(p);
     ctx.translate(-bev*1.4,-bev*1.4); ctx.strokeStyle="rgba(0,0,0,.3)"; ctx.stroke(p);
     ctx.restore();
+    const tx=TEX[cfg.pattern]; if(tx){ ctx.save(); ctx.clip(p); const bb=it.pts.reduce((m,q)=>[Math.min(m[0],q[0]),Math.min(m[1],q[1]),Math.max(m[2],q[0]),Math.max(m[3],q[1])],[1e9,1e9,-1e9,-1e9]), rr=rng(Math.round(bb[0]*7+bb[1]*13));
+      if(tx==="speck"){ for(let n=0;n<70;n++){ ctx.fillStyle=rr()<.5?"rgba(255,255,255,.35)":"rgba(0,0,0,.35)"; ctx.beginPath(); ctx.arc((bb[0]+rr()*(bb[2]-bb[0]))*s,(bb[1]+rr()*(bb[3]-bb[1]))*s,Math.max(.8,(4+rr()*6)*s),0,7); ctx.fill(); } }
+      if(tx==="vein"){ ctx.strokeStyle="rgba(0,0,0,.18)"; ctx.lineWidth=Math.max(1,5*s); for(let n=0;n<5;n++){ ctx.beginPath(); let y=bb[1]+rr()*(bb[3]-bb[1]); ctx.moveTo(bb[0]*s,y*s); for(let x=bb[0];x<=bb[2];x+=40){ y+=(rr()-.5)*30; ctx.lineTo(x*s,y*s); } ctx.stroke(); } }
+      if(tx==="grain"){ ctx.fillStyle="rgba(0,0,0,.22)"; for(let n=0;n<160;n++) ctx.fillRect((bb[0]+rr()*(bb[2]-bb[0]))*s,(bb[1]+rr()*(bb[3]-bb[1]))*s,Math.max(1,7*s),Math.max(1,2.5*s)); }
+      if(tx==="rough"){ for(let n=0;n<14;n++){ ctx.fillStyle="rgba(0,0,0,.08)"; ctx.beginPath(); ctx.arc((bb[0]+rr()*(bb[2]-bb[0]))*s,(bb[1]+rr()*(bb[3]-bb[1]))*s,Math.max(1,(6+rr()*14)*s),0,7); ctx.fill(); } }
+      if(tx==="dots"){ ctx.fillStyle="rgba(0,0,0,.22)"; for(let x=bb[0]+20;x<bb[2];x+=34) for(let y=bb[1]+20;y<bb[3];y+=34){ ctx.beginPath(); ctx.arc(x*s,y*s,Math.max(.8,5*s),0,7); ctx.fill(); } }
+      ctx.restore(); }
     if(grooves){ const x0=it.pts[0][0]*s, y0=it.pts[0][1]*s, L=300*s; ctx.strokeStyle="rgba(0,0,0,.28)"; ctx.lineWidth=Math.max(1,3*s);
       ctx.beginPath(); for(const t of [L/3,2*L/3]){ ctx.moveTo(x0+t,y0+L*.06); ctx.lineTo(x0+t,y0+L*.94); ctx.moveTo(x0+L*.06,y0+t); ctx.lineTo(x0+L*.94,y0+t); } ctx.stroke(); }
     ctx.lineWidth=joint; ctx.strokeStyle=SAND; ctx.stroke(p);
@@ -167,12 +183,12 @@ const HI = {
   "nav.studio":"पैटर्न स्टूडियो","nav.products":"उत्पाद","nav.load":"भार गाइड","nav.visit":"विज़िट","nav.quote":"पूछताछ भेजें",
   "nav.desk.home":"होम गाइड","nav.desk.builder":"सप्लाई डेस्क","nav.desk.architect":"स्पेक डेस्क",
   "mode.label":"मैं हूँ","mode.home":"घर मालिक","mode.builder":"बिल्डर","mode.architect":"आर्किटेक्ट","hero.repave":"रंग बदलकर देखें",
-  "trust.1":"उत्पाद रेंज","trust.2":"रंग","trust.3":"हर भार के लिए मोटाई","trust.4b":"सीधे","trust.4":"फैक्ट्री से सीधे आपकी साइट तक",
+  "trust.1":"उत्पाद रेंज","trust.2b":"अपना प्लांट","trust.2":"मंडीदीप में समय पर निर्माण","trust.3":"हर भार के लिए मोटाई","trust.4b":"बड़ी साइटें","trust.4":"मॉल, स्टेडियम, स्कूल, अस्पताल",
   "studio.eyebrow":"पैटर्न स्टूडियो","studio.h2":"खरीदने से पहले अपना फ़र्श डिज़ाइन करें","studio.lead":"ब्लॉक, लेइंग पैटर्न और तीन तक रंग चुनें। स्टूडियो बताएगा कि आपके क्षेत्र में हर रंग के कितने ब्लॉक लगेंगे।",
   "studio.surprise":"कुछ नया दिखाओ","studio.top":"ऊपर से","studio.walk":"सामने से","studio.noon":"दोपहर","studio.dusk":"शाम","studio.rain":"बारिश में",
   "studio.block":"ब्लॉक","studio.pattern":"लेइंग पैटर्न","studio.field":"मुख्य रंग","studio.accent":"दूसरा रंग","studio.border":"बॉर्डर",
   "studio.area":"आपका क्षेत्र (वर्ग फ़ुट)","studio.need":"लगभग इतने ब्लॉक लगेंगे","studio.send":"डिज़ाइन WhatsApp पर भेजें","studio.toquote":"पूछताछ में जोड़ें",
-  "products.eyebrow":"कैटलॉग","products.h2":"हमारे उत्पाद","products.lead":"तेरह रेंज — इंटरलॉकिंग पेवर से स्लेट स्लैब और कोबल तक। हरे टैग वाली तस्वीरें हमारे एक्सपीरियंस सेंटर की असली फ़ोटो हैं। साइज़ और पैटर्न के लिए किसी उत्पाद पर टैप करें, या तुलना के लिए तीन तक चुनें।",
+  "products.eyebrow":"कैटलॉग","products.h2":"हमारे उत्पाद","products.lead":"चौदह रेंज — इंटरलॉकिंग पेवर से स्लेट स्लैब और कोबल तक। साइज़ और पैटर्न के लिए किसी उत्पाद पर टैप करें, या तुलना के लिए तीन तक चुनें।",
   "f.all":"सभी","f.walk":"पैदल पथ","f.drive":"ड्राइववे","f.heavy":"भारी उपयोग","f.edge":"किनारा",
   "load.eyebrow":"भार गाइड","load.h2":"किस भार के लिए कौन-सा ब्लॉक?","load.lead":"स्लाइडर को उस वाहन तक ले जाएँ जो आपके फ़र्श पर चलेगा। हम मोटाई, स्ट्रेंथ ग्रेड और बेस बताएँगे।",
   "desk.home.h2":"कीचड़ वाले आँगन से तैयार ड्राइववे तक","desk.builder.h2":"बिल्डरों के लिए सप्लाई प्लानिंग","desk.arch.h2":"आर्किटेक्ट्स के लिए स्पेक डेस्क",
@@ -181,10 +197,10 @@ const HI = {
   "final.h2":"अपना वर्ग फ़ुट बताइए, हम आज ही जवाब देंगे।","bar.call":"कॉल","bar.quote":"पूछताछ"
 };
 const HERO = {
-  en:{ home:{eb:"For homes · Driveways, gardens, terraces", h:"Your driveway, done right the first time", l:"Pick a block, try it in your colours, and know how many you need before anyone comes to site. Made in our Mandideep factory, delivered across Bhopal.", c1:"Design my driveway", c2:"Send enquiry", h1:"#studio", h2:"#quote"},
+  en:{ home:{eb:"Paver blocks & kerb stones · Made in Mandideep", h:"Floors built to carry Bhopal", l:"From home driveways to malls, stadiums and factory yards. 14 ranges made in our own Mandideep plant and delivered to your site.", c1:"Send enquiry", c2:"See all 14 ranges", h1:"#quote", h2:"#products"},
        builder:{eb:"For builders & contractors · Colonies, roads, yards", h:"Factory-direct supply. Truckloads on schedule.", l:"Interlocking pavers in 60, 80 and 100 mm, made in Mandideep and sent to your site by the truckload. One enquiry covers stock, specs and delivery dates.", c1:"Send a bulk enquiry", c2:"Plan supply", h1:"#quote", h2:"#desk"},
        architect:{eb:"For architects & landscape designers", h:"Specify pavers with the numbers in hand", l:"Block sizes, strength grades and laying patterns in one place, a studio to test colourways, and sample blocks for your client meeting.", c1:"Open the pattern studio", c2:"Request a sample kit", h1:"#studio", h2:"#desk"} },
-  hi:{ home:{eb:"घरों के लिए · ड्राइववे, बगीचे, छत", h:"आपका ड्राइववे, पहली बार में ही सही", l:"ब्लॉक चुनिए, अपने रंगों में देखिए, और साइट पर किसी के आने से पहले जान लीजिए कि कितने ब्लॉक लगेंगे। मंडीदीप की हमारी फैक्ट्री में बने, पूरे भोपाल में डिलीवरी।", c1:"अपना ड्राइववे डिज़ाइन करें", c2:"पूछताछ भेजें"},
+  hi:{ home:{eb:"पेवर ब्लॉक और कर्ब स्टोन · मंडीदीप में निर्मित", h:"भोपाल का भार उठाने वाले फ़र्श", l:"घर के ड्राइववे से लेकर मॉल, स्टेडियम और फैक्ट्री यार्ड तक। हमारे अपने मंडीदीप प्लांट में बनी 14 रेंज, सीधे आपकी साइट तक।", c1:"पूछताछ भेजें", c2:"सभी 14 रेंज देखें"},
        builder:{eb:"बिल्डर और ठेकेदारों के लिए · कॉलोनी, सड़क, यार्ड", h:"फैक्ट्री से सीधे। समय पर ट्रक भर माल।", l:"60, 80 और 100 mm के इंटरलॉकिंग पेवर, मंडीदीप में बने और ट्रक से सीधे आपकी साइट तक। स्टॉक, स्पेसिफ़िकेशन और डिलीवरी की तारीख़ — एक ही पूछताछ में।", c1:"थोक पूछताछ भेजें", c2:"सप्लाई प्लान करें"},
        architect:{eb:"आर्किटेक्ट और लैंडस्केप डिज़ाइनरों के लिए", h:"आंकड़ों के साथ पेवर स्पेसिफ़ाई करें", l:"ब्लॉक साइज़, स्ट्रेंथ ग्रेड और लेइंग पैटर्न एक जगह, रंग आज़माने के लिए स्टूडियो, और क्लाइंट मीटिंग के लिए सैंपल ब्लॉक।", c1:"पैटर्न स्टूडियो खोलें", c2:"सैंपल किट मँगाएँ"} }
 };
@@ -325,7 +341,7 @@ const cmpSet = new Set();
 function renderGrid(){
   $("grid").innerHTML = PRODUCTS.map((p,i)=>{ const v=viewOf(p,p.c,1); return (
     '<article class="p" data-uses="'+p.uses.join(" ")+'">'+
-      '<button class="ph" type="button" data-open="'+p.id+'" aria-label="View '+p.name+' details"><img id="img-'+p.id+'" src="'+v.src+'" alt="'+v.cap+'" loading="'+(i<3?"eager":"lazy")+'" width="1100" height="825"><span class="tag">'+p.size+'</span><span class="kind'+(v.real?' real':'')+'" id="kind-'+p.id+'">'+(KIND[v.real]||'Laid preview')+'</span></button>'+
+      '<button class="ph" type="button" data-open="'+p.id+'" aria-label="View '+p.name+' details"><img id="img-'+p.id+'" src="'+v.src+'" alt="'+v.cap+'" loading="'+(i<3?"eager":"lazy")+'" width="800" height="1000">'+(p.size==="On request"?"":'<span class="tag">'+p.size+'</span>')+'</button>'+
       '<div class="row"><h3>'+p.name+'</h3><div class="dots">'+coloursOf(p).map(c=>'<button type="button" class="dot sm" id="dot-'+p.id+'-'+c+'" data-p="'+p.id+'" data-c="'+c+'" aria-label="'+nameOf(c)+'" title="'+nameOf(c)+'" aria-pressed="'+(c===p.c)+'" style="background:'+hexOf(c)+'"></button>').join("")+'</div></div>'+
       '<div class="sub">'+p.alt+' · '+p.load+'</div>'+
       '<div class="actions"><button type="button" class="link" data-open="'+p.id+'">Details</button><a class="ask" id="ask-'+p.id+'" href="'+askLink(p)+'" target="_blank" rel="noopener"><svg><use href="#wa"/></svg>Enquire</a>'+
@@ -334,7 +350,7 @@ function renderGrid(){
 }
 function askLink(p){ return waLink("Hello Satyam Pavers, I would like to enquire about "+p.name+" ("+nameOf(p.c).toLowerCase()+")."); }
 function setColour(p,c){ p.c=c; const v=viewOf(p,c,1), im=$("img-"+p.id); im.src=v.src; im.alt=v.cap;
-  const k=$("kind-"+p.id); k.textContent=KIND[v.real]||"Laid preview"; k.classList.toggle("real",!!v.real);
+  const k=$("kind-"+p.id); if(k){ k.textContent=KIND[v.real]||"Laid preview"; k.classList.toggle("real",!!v.real); }
   document.querySelectorAll('.dot[data-p="'+p.id+'"]').forEach(d=>d.setAttribute("aria-pressed", d.dataset.c===c)); $("ask-"+p.id).href=askLink(p); }
 $("grid").addEventListener("click", e=>{
   const d=e.target.closest(".dot"); if(d){ setColour(P(d.dataset.p), d.dataset.c); return; }
@@ -381,11 +397,6 @@ document.querySelectorAll("dialog").forEach(d=>{ d.addEventListener("click", e=>
 function filter(f){ document.querySelectorAll(".filters button").forEach(b=>b.setAttribute("aria-pressed", b.dataset.f===f)); document.querySelectorAll("#grid .p").forEach(c=>c.hidden=!(f==="all"||c.dataset.uses.split(" ").includes(f))); }
 document.querySelectorAll(".filters button").forEach(b=>b.addEventListener("click",()=>filter(b.dataset.f)));
 
-
-/* range strip: product images and photos, each opens its product */
-const STRIP=[["stock/zigzag-laid","zigzag","Zig-zag (Uni) pavers"],["generated/ishape","ishape","Red I-shape (Behaton)"],["generated/curved","curved","Kerb stones"],["generated/tiles","tiles","Brick-weave paver tile"],["generated/hexagon","hexagon","Hexagon 3D tile"],["stock/rectangular-laid","rectangular","Rectangular pavers"],["generated/antiskid","antiskid","Anti-skid blocks"],["generated/cobble","cobble","Cobble stone"],["stock/square-grass","square","Square pavers"],["generated/slate","slate","Slate finish slab"],["generated/speckled","speckled","Speckled finish block"]];
-$("photoStrip").innerHTML = STRIP.map((x,i)=>'<button type="button" id="ps-'+i+'" data-open="'+x[1]+'" data-photo="'+x[0]+'"><img src="'+photoSrc(x[0])+'" alt="'+x[2]+'" loading="lazy" width="1100" height="825"><span>'+x[2]+'</span></button>').join("");
-$("photoStrip").addEventListener("click", e=>{ const b=e.target.closest("[data-open]"); if(!b) return; cur=P(b.dataset.open); const g=galleryOf(cur); dView=Math.max(0,g.findIndex(x=>x.src===photoSrc(b.dataset.photo))); renderDetail(); $("detail").showModal(); });
 /* ---------- load guide ---------- */
 const LOADS = [
   {name:"People on foot", short:"Foot", eg:"Garden paths, terraces, temple and school courtyards", mm:60, grade:"M30", base:100, picks:["square","combo5","tiles","rectangular"],

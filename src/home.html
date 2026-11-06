@@ -3,8 +3,8 @@
     <div class="hero-stage" aria-hidden="true"><div class="stage walk" id="heroStage"><canvas id="heroCanvas"></canvas></div></div>
     <div class="wrap"><div class="inner">
       <h1 class="label hero-h1">Paver blocks &amp; kerb stones in Bhopal · Made in Mandideep</h1>
-      <p class="display" id="heroTitle">Your driveway, done right the first time</p>
-      <p class="lead" id="heroLead">Pick a block, try it in your colours, and know how many you need before anyone comes to site. Made in our Mandideep factory, delivered across Bhopal.</p>
+      <p class="display" id="heroTitle">Floors built to carry Bhopal</p>
+      <p class="lead" id="heroLead">From home driveways to malls, stadiums and factory yards. 14 ranges made in our own Mandideep plant and delivered to your site.</p>
       <div class="iam">
         <span class="label" data-i18n="mode.label">I am a</span>
         <div class="seg" role="group" aria-label="Who are you?" id="modeSeg">
@@ -14,8 +14,8 @@
         </div>
       </div>
       <div class="cta">
-        <a class="btn btn-primary" id="heroCta1" href="#studio"><span id="heroCta1t">Design my driveway</span></a>
-        <a class="btn btn-line" id="heroCta2" href="#quote"><span id="heroCta2t">Send enquiry</span></a>
+        <a class="btn btn-primary" id="heroCta1" href="#quote"><span id="heroCta1t">Send enquiry</span></a>
+        <a class="btn btn-line" id="heroCta2" href="#products"><span id="heroCta2t">See all 14 ranges</span></a>
       </div>
     </div></div>
     <div class="repave" role="group" aria-label="Repave the hero">
@@ -25,10 +25,66 @@
 
   <div class="trust"><div class="wrap">
     <div class="s"><b class="num">14</b><span data-i18n="trust.1">Product ranges</span></div>
-    <div class="s"><b class="num">7</b><span data-i18n="trust.2">Colours</span></div>
     <div class="s"><b class="num">60–100<small style="font-size:.5em"> mm</small></b><span data-i18n="trust.3">A thickness for every load</span></div>
-    <div class="s"><b data-i18n="trust.4b">Direct</b><span data-i18n="trust.4">From our factory to your site</span></div>
+    <div class="s"><b data-i18n="trust.2b">Own plant</b><span data-i18n="trust.2">Made to schedule in Mandideep</span></div>
+    <div class="s"><b data-i18n="trust.4b">Big sites</b><span data-i18n="trust.4">Malls, stadiums, schools, hospitals</span></div>
   </div></div>
+
+  <!-- CATALOGUE -->
+  <section id="products"><div class="wrap">
+    <div class="head">
+      <div><div class="label" data-i18n="products.eyebrow">Catalogue</div><h2 data-i18n="products.h2">Our products</h2><p data-i18n="products.lead">Fourteen ranges, from interlocking pavers to slate slabs and cobbles. Tap a product for sizes, finishes and laying patterns, or tick up to three to compare.</p></div>
+      <div class="seg filters" role="group" aria-label="Filter products by use">
+        <button type="button" id="f-all" data-f="all" aria-pressed="true" data-i18n="f.all">All</button>
+        <button type="button" id="f-walk" data-f="walk" aria-pressed="false" data-i18n="f.walk">Walkways</button>
+        <button type="button" id="f-drive" data-f="drive" aria-pressed="false" data-i18n="f.drive">Driveways</button>
+        <button type="button" id="f-heavy" data-f="heavy" aria-pressed="false" data-i18n="f.heavy">Heavy duty</button>
+        <button type="button" id="f-edge" data-f="edge" aria-pressed="false" data-i18n="f.edge">Edging</button>
+      </div>
+    </div>
+    <div class="products" id="grid">{{GRID}}</div>
+  </div></section>
+
+  <!-- SECTORS -->
+  <section class="sectors"><div class="wrap">
+    <div class="head"><div>
+      <div class="label">Who we supply</div>
+      <h2>Supplying Bhopal's biggest sites</h2>
+      <p>Malls, stadiums, school campuses, hospitals and factory yards: our blocks go wherever a floor has to carry crowds and heavy vehicles and still look good for years. Large orders are made to schedule at our Mandideep plant and delivered in planned loads.</p>
+    </div></div>
+    <ul class="sector-grid">
+      <li class="reveal"><svg class="si" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-6h6v6"/></svg><b>Malls &amp; commercial complexes</b><span>Forecourts, walkways and parking that take heavy footfall</span></li>
+      <li class="reveal"><svg class="si" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 2 9 2 12 0v-5"/></svg><b>Schools &amp; colleges</b><span>Campus roads, assembly grounds and safe anti-skid paths</span></li>
+      <li class="reveal"><svg class="si" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="12" rx="9" ry="5"/><path d="M3 12v4c0 3 4 5 9 5s9-2 9-5v-4"/></svg><b>Stadiums &amp; sports complexes</b><span>Spectator plazas, approach roads and parking for big crowds</span></li>
+      <li class="reveal"><svg class="si" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="17" rx="1"/><path d="M12 8v6M9 11h6"/></svg><b>Hospitals &amp; institutions</b><span>Anti-skid ramps, entrances and ambulance driveways</span></li>
+      <li class="reveal"><svg class="si" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3 4 21M16 3l4 18M12 5v3M12 11v3M12 17v3"/></svg><b>Government &amp; city roads</b><span>Footpaths, medians and kerbs for municipal and smart-city work</span></li>
+      <li class="reveal"><svg class="si" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21V10l6 4V10l6 4V6h6v15z"/></svg><b>Factories &amp; warehouses</b><span>100 mm yards for trucks, forklifts and loading bays</span></li>
+      <li class="reveal"><svg class="si" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21V11l6-5 6 5v10M15 21V9h6v12M7 15h4"/></svg><b>Housing societies &amp; colonies</b><span>Internal roads, footpaths and kerbs, colour-matched</span></li>
+      <li class="reveal"><svg class="si" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M3 21h12M6 9h6M14 10h3l2 2v6a1.5 1.5 0 0 1-3 0v-3"/></svg><b>Petrol pumps &amp; parking</b><span>Zig-zag paving that holds under braking and turning</span></li>
+      <li class="reveal"><svg class="si" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 12 4l9 7M5 10v11h14V10M10 21v-6h4v6"/></svg><b>Homes, farmhouses &amp; temples</b><span>Driveways, porches, gardens and courtyards</span></li>
+    </ul>
+  </div></section>
+
+  <!-- BULK -->
+  <section class="bulk"><div class="wrap bulk-in">
+    <div><div class="label">Large projects</div><h2>Ordering for a mall, campus or township?</h2><p>We plan production and dispatch from our Mandideep plant around your site schedule, with colour-matched batches and kerbs from the same source.</p></div>
+    <div class="bulk-cta"><a class="btn btn-primary" href="contact/">Discuss your project</a><a class="link" href="tools/paver-calculator/">Estimate quantity</a></div>
+  </div></section>
+
+  <!-- APPLICATIONS -->
+  <section class="apps" id="uses"><div class="wrap">
+    <div class="head"><div>
+      <div class="label">Applications</div>
+      <h2>Where our pavers work</h2>
+      <p>The right block depends on what drives over it. Here is where each range does its best work.</p>
+    </div></div>
+    <div class="apps-grid">
+      <a class="app reveal" href="products/zig-zag-paver-blocks/"><img src="assets/img/stock/zigzag-parking.webp" alt="Zig-zag pavers in a parking bay" loading="lazy" width="1200" height="900"><div class="app-body"><div class="label">Zig-zag (uni) · 80–100 mm</div><h3>Parking, petrol pumps and driveways</h3><p>Wavy edges lock on every side, so the surface holds under braking and turning wheels.</p><span class="go">Zig-zag pavers</span></div></a>
+      <a class="app reveal" href="products/i-shape-paver-blocks/"><img src="assets/img/onsite/ishape.webp" alt="Housing-society road paved with grey I-shape pavers" loading="lazy" width="1200" height="900"><div class="app-body"><div class="label">I-shape (Behaton) · 60–80 mm</div><h3>Society roads and footpaths</h3><p>Locks on four sides and spreads wheel loads across colony roads and commercial walkways.</p><span class="go">I-shape pavers</span></div></a>
+      <a class="app reveal" href="products/hexagon-3d-paver-tiles/"><img src="assets/img/stock/hexagon-walkway.webp" alt="Hexagon pavers laid in a honeycomb park walkway" loading="lazy" width="1200" height="900"><div class="app-body"><div class="label">Hexagon · tiles · slate</div><h3>Parks, plazas and walkways</h3><p>Honeycomb and textured faces for wide paths where people walk, sit and gather.</p><span class="go">Walkway range</span></div></a>
+      <a class="app reveal" href="products/kerb-stones/"><img src="assets/img/onsite/curved.webp" alt="Kerb stones edging a colony road and paved footpath" loading="lazy" width="1200" height="900"><div class="app-body"><div class="label">Kerb stones</div><h3>Clean edges that keep paving in place</h3><p>Straight and curved kerbs for roads, medians, driveways and garden beds.</p><span class="go">Kerb stones</span></div></a>
+    </div>
+  </div></section>
 
   <!-- PATTERN STUDIO -->
   <section id="studio"><div class="wrap">
@@ -80,57 +136,6 @@
         </div>
       </div>
     </div>
-  </div></section>
-
-  <!-- CATALOGUE -->
-  <section id="products" style="padding-top:0"><div class="wrap">
-    <div class="head">
-      <div><div class="label" data-i18n="products.eyebrow">Catalogue</div><h2 data-i18n="products.h2">Our products</h2><p data-i18n="products.lead">Thirteen ranges, from interlocking pavers to slate slabs and cobbles. Tap a product for sizes, finishes and laying patterns, or tick up to three to compare.</p></div>
-      <div class="seg filters" role="group" aria-label="Filter products by use">
-        <button type="button" id="f-all" data-f="all" aria-pressed="true" data-i18n="f.all">All</button>
-        <button type="button" id="f-walk" data-f="walk" aria-pressed="false" data-i18n="f.walk">Walkways</button>
-        <button type="button" id="f-drive" data-f="drive" aria-pressed="false" data-i18n="f.drive">Driveways</button>
-        <button type="button" id="f-heavy" data-f="heavy" aria-pressed="false" data-i18n="f.heavy">Heavy duty</button>
-        <button type="button" id="f-edge" data-f="edge" aria-pressed="false" data-i18n="f.edge">Edging</button>
-      </div>
-    </div>
-    <div class="products" id="grid">{{GRID}}</div>
-    <p class="swipe-hint">Swipe to see every range →</p>
-  </div></section>
-
-  <!-- APPLICATIONS -->
-  <section class="apps" id="uses"><div class="wrap">
-    <div class="head"><div>
-      <div class="label">Applications</div>
-      <h2>Where our pavers work</h2>
-      <p>The right block depends on what drives over it. Here is where each range does its best work.</p>
-    </div></div>
-    <div class="apps-grid">
-      <a class="app reveal" href="products/zig-zag-paver-blocks/"><img src="assets/img/stock/zigzag-parking.webp" alt="Zig-zag pavers in a parking bay" loading="lazy" width="1200" height="900"><div class="app-body"><div class="label">Zig-zag (uni) · 80–100 mm</div><h3>Parking, petrol pumps and driveways</h3><p>Wavy edges lock on every side, so the surface holds under braking and turning wheels.</p><span class="go">Zig-zag pavers</span></div></a>
-      <a class="app reveal" href="products/i-shape-paver-blocks/"><img src="assets/img/onsite/ishape.webp" alt="Housing-society road paved with grey I-shape pavers" loading="lazy" width="1200" height="900"><div class="app-body"><div class="label">I-shape (Behaton) · 60–80 mm</div><h3>Society roads and footpaths</h3><p>Locks on four sides and spreads wheel loads across colony roads and commercial walkways.</p><span class="go">I-shape pavers</span></div></a>
-      <a class="app reveal" href="products/hexagon-3d-paver-tiles/"><img src="assets/img/stock/hexagon-walkway.webp" alt="Hexagon pavers laid in a honeycomb park walkway" loading="lazy" width="1200" height="900"><div class="app-body"><div class="label">Hexagon · tiles · slate</div><h3>Parks, plazas and walkways</h3><p>Honeycomb and textured faces for wide paths where people walk, sit and gather.</p><span class="go">Walkway range</span></div></a>
-      <a class="app reveal" href="products/kerb-stones/"><img src="assets/img/onsite/curved.webp" alt="Kerb stones edging a colony road and paved footpath" loading="lazy" width="1200" height="900"><div class="app-body"><div class="label">Kerb stones</div><h3>Clean edges that keep paving in place</h3><p>Straight and curved kerbs for roads, medians, driveways and garden beds.</p><span class="go">Kerb stones</span></div></a>
-    </div>
-  </div></section>
-
-  <!-- SECTORS -->
-  <section class="sectors"><div class="wrap">
-    <div class="head"><div>
-      <div class="label">Who we supply</div>
-      <h2>Supplying Bhopal's biggest sites</h2>
-      <p>Malls, stadiums, school campuses, hospitals and factory yards: our blocks go wherever a floor has to carry crowds and heavy vehicles and still look good for years. Large orders are made to schedule at our Mandideep plant and delivered in planned loads.</p>
-    </div></div>
-    <ul class="sector-grid">
-      <li class="reveal"><b>Malls &amp; commercial complexes</b><span>Forecourts, walkways and parking that take heavy footfall</span></li>
-      <li class="reveal"><b>Schools &amp; colleges</b><span>Campus roads, assembly grounds and safe anti-skid paths</span></li>
-      <li class="reveal"><b>Stadiums &amp; sports complexes</b><span>Spectator plazas, approach roads and parking for big crowds</span></li>
-      <li class="reveal"><b>Hospitals &amp; institutions</b><span>Anti-skid ramps, entrances and ambulance driveways</span></li>
-      <li class="reveal"><b>Government &amp; city roads</b><span>Footpaths, medians and kerbs for municipal and smart-city work</span></li>
-      <li class="reveal"><b>Factories &amp; warehouses</b><span>100 mm yards for trucks, forklifts and loading bays</span></li>
-      <li class="reveal"><b>Housing societies &amp; colonies</b><span>Internal roads, footpaths and kerbs, colour-matched</span></li>
-      <li class="reveal"><b>Petrol pumps &amp; parking</b><span>Zig-zag paving that holds under braking and turning</span></li>
-      <li class="reveal"><b>Homes, farmhouses &amp; temples</b><span>Driveways, porches, gardens and courtyards</span></li>
-    </ul>
   </div></section>
 
   <!-- LOAD GUIDE -->
@@ -313,8 +318,6 @@
         <div class="places">{{PLACES}}</div>
       </div>
     </div>
-    <div class="strip-head"><div class="label">Our range at a glance</div></div>
-    <div class="strip" id="photoStrip"></div>
   </div></section>
 
   <!-- FAQ -->
