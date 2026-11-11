@@ -3,3 +3,6 @@
 .DS_Store
 reference/
 .claude/
+node_modules/
+tests/test-results/
+tests/playwright-report/

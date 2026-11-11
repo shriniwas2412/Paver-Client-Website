@@ -1,0 +1,11 @@
+{
+  "name": "satyam-pavers-e2e",
+  "private": true,
+  "description": "End-to-end checks for the static Satyam Pavers site. Run from tests/: npm install, then npm test.",
+  "scripts": {
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.65.0"
+  }
+}

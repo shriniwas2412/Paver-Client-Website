@@ -634,3 +634,23 @@ main h2{font-family:var(--serif);text-transform:none;letter-spacing:-.015em;font
 .bulk + .apps{padding-top:96px}
 @media (max-width:760px){.bulk{padding-block:56px}.bulk-in{grid-template-columns:1fr;gap:24px}.bulk-cta{width:100%}.bulk-cta .btn{width:100%;justify-content:center}.bulk + .apps{padding-top:64px}}
 @media (max-width:860px){.gal{max-width:none}.gal img{aspect-ratio:4/3;width:100%;object-fit:cover}}
+
+/* ---------- enquiry fallback, call-back form, reviews, projects ---------- */
+.sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.cb-row{display:flex;gap:10px;flex-wrap:wrap}
+.cb-row label{flex:1 1 180px}
+.cb-row .btn{flex:0 0 auto}
+.enq-done{border-top:1px solid var(--line);padding-top:14px;display:grid;gap:10px}
+.enq-done[hidden]{display:none}
+.enq-done:focus{outline:2px solid var(--laterite);outline-offset:4px}
+.enq-done p{color:var(--muted);font-size:.95rem}
+.enq-done pre{white-space:pre-wrap;font-family:var(--mono, ui-monospace, monospace);font-size:.86rem;background:var(--soft);padding:12px;margin:0;max-height:220px;overflow:auto}
+.enq-done .row2{flex-wrap:wrap}
+.review-grid,.project-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,280px),1fr));gap:20px;margin-top:20px}
+.review{margin:0;padding:20px;background:var(--surface);border:1px solid var(--line);display:grid;gap:10px}
+.review .stars{color:#D99A22;letter-spacing:.1em}
+.review blockquote{margin:0}
+.review figcaption{color:var(--muted);font-size:.9rem}
+.project{background:var(--surface);border:1px solid var(--line);overflow:hidden}
+.project img{width:100%;height:auto;aspect-ratio:4/3;object-fit:cover;display:block}
+.project-body{padding:16px;display:grid;gap:6px}

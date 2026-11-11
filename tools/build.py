@@ -34,6 +34,22 @@ def addr_line(l): return f'{l["street"]}, {l["locality"]}, Madhya Pradesh {l["pi
 
 AREAS = ["Bhopal", "Mandideep", "Obedullaganj", "Raisen", "Sehore", "Vidisha", "Narmadapuram", "Indore"]
 
+# ---------- trust facts: fill these only with verified details from the client ----------
+# Every section below renders only when its value is filled in, so nothing made-up ever goes live.
+# docs/client-inputs.md lists what to ask the client for.
+EMAIL = ""              # e.g. "sales@satyampavers.in"; adds a "Send by email" option to the enquiry form
+YEARS = None            # year the business started, e.g. 2009; shown in the footer and Organization schema
+GSTIN = ""              # shown in the footer
+HOURS = {}              # per location id: [(["Monday", ..., "Saturday"], "10:00", "19:00")]
+SAME_AS = []            # profile URLs: Google Business Profile, IndiaMART, Justdial, Facebook, Instagram
+GBP_REVIEW_URL = ""     # Google Business Profile "Ask for reviews" link
+ANALYTICS = {"ga4": "", "clarity": ""}   # e.g. {"ga4": "G-XXXXXXX"}; no tracking script loads while empty
+# Real supplied projects: dict(site="Green Valley Society", place="Kolar Road, Bhopal", product="zigzag", sqft=12000,
+#   year=2025, photo="assets/img/projects/green-valley.webp", note="80 mm grey with red bands")
+PROJECTS = []
+# Real Google reviews, copied word for word: dict(name="R. Sharma", place="Awadhpuri, Bhopal", text="...", rating=5)
+REVIEWS = []
+
 # ---------- products (sizes and counts are typical values; confirm with the factory) ----------
 PRODUCTS = [
   dict(id="rectangular", slug="rectangular-paver-blocks", code="RC", name="Rectangular", full="Rectangular Paver Blocks", alt="Brick-shaped paver", uses=["walk","drive","heavy"], c="grey",
@@ -255,32 +271,63 @@ def loc_schema(l):
             "knowsAbout": ["paver blocks", "interlocking tiles", "kerb stones", "paver tiles"],
             "address": {"@type": "PostalAddress", "streetAddress": l["street"], "addressLocality": l["locality"],
                         "addressRegion": "Madhya Pradesh", "postalCode": l["pin"], "addressCountry": "IN"},
-            "hasMap": maps_link(l), "areaServed": AREAS}
+            "hasMap": maps_link(l), "areaServed": AREAS, **hours_schema(l)}
+def hours_schema(l):
+    h = HOURS.get(l["id"])
+    return {"openingHoursSpecification": [{"@type": "OpeningHoursSpecification", "dayOfWeek": days, "opens": o, "closes": c} for days, o, c in h]} if h else {}
 def org_schema():
-    return {"@type": "Organization", "@id": ORG_ID, "name": BRAND, "legalName": LEGAL, "url": SITE_URL,
+    o = {"@type": "Organization", "@id": ORG_ID, "name": BRAND, "legalName": LEGAL, "url": SITE_URL,
             "logo": SITE_URL + "assets/brand/logo-512.png", "telephone": CONTACT["tel"],
             "contactPoint": {"@type": "ContactPoint", "telephone": CONTACT["tel"], "contactType": "sales", "areaServed": "IN", "availableLanguage": ["en", "hi"]},
-            "address": loc_schema(LOCATIONS[0])["address"],
+            "address": {"@type": "PostalAddress", "streetAddress": LOCATIONS[0]["street"], "addressLocality": LOCATIONS[0]["locality"],
+                        "addressRegion": "Madhya Pradesh", "postalCode": LOCATIONS[0]["pin"], "addressCountry": "IN"},
             "description": "Manufacturer of concrete paver blocks, kerb stones and paver tiles in Mandideep, supplying malls, stadiums, schools, hospitals, factories, housing societies, petrol pumps and homes across Bhopal and central Madhya Pradesh."}
+    if SAME_AS: o["sameAs"] = SAME_AS
+    if YEARS: o["foundingDate"] = str(YEARS)
+    if EMAIL: o["email"] = EMAIL
+    if GSTIN: o["taxID"] = GSTIN
+    return o
 def ld(graph): return '<script type="application/ld+json">' + json.dumps({"@context": "https://schema.org", "@graph": graph}, ensure_ascii=False) + "</script>"
 def crumbs(items):
     return {"@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": i + 1, "name": n, "item": SITE_URL + u} for i, (n, u) in enumerate(items)]}
 
 # ---------- page shell ----------
-def head(root, path, title, desc, img="assets/img/scenes/hero.webp", schema="", extra=""):
+FONTS = "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Barlow+Condensed:wght@500;600;700&family=Mukta:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
+# English path -> Hindi path, for pages that exist in both languages (hreflang links and the language button use it)
+HI_PRODUCTS = ["zigzag", "ishape", "rectangular", "curved"]
+HI_PAIRS = {"paver-blocks-bhopal/": "hi/", "products/": "hi/products/", "guides/paver-block-price-bhopal/": "hi/guides/paver-block-price-bhopal/",
+            **{f"products/{s}/": f"hi/products/{s}/" for s in ("zig-zag-paver-blocks", "i-shape-paver-blocks", "rectangular-paver-blocks", "kerb-stones")}}
+def analytics_tags():
+    out = ""
+    if ANALYTICS.get("ga4"):
+        g = e(ANALYTICS["ga4"])
+        out += f'<script async src="https://www.googletagmanager.com/gtag/js?id={g}"></script>\n<script>window.dataLayer=window.dataLayer||[];function gtag(){{dataLayer.push(arguments)}}gtag("js",new Date());gtag("config","{g}");</script>\n'
+    if ANALYTICS.get("clarity"):
+        c = e(ANALYTICS["clarity"])
+        out += f'<script>(function(c,l,a,r,i,t,y){{c[a]=c[a]||function(){{(c[a].q=c[a].q||[]).push(arguments)}};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y)}})(window,document,"clarity","script","{c}");</script>\n'
+    return out
+def head(root, path, title, desc, img="assets/img/scenes/hero.webp", schema="", extra="", lang="en"):
     url = SITE_URL + path
+    en_path = next((k for k, v in HI_PAIRS.items() if v == path), path) if lang == "hi" else path
+    hi_path = HI_PAIRS.get(en_path)
+    alt_attr, alts = "", ""
+    if hi_path is not None:
+        alts = (f'<link rel="alternate" hreflang="en-IN" href="{SITE_URL}{en_path}">\n<link rel="alternate" hreflang="hi-IN" href="{SITE_URL}{hi_path}">\n'
+                f'<link rel="alternate" hreflang="x-default" href="{SITE_URL}{en_path}">\n')
+        alt_attr = f' data-alt="{root}{hi_path if lang == "en" else en_path}"'
     return f'''<!DOCTYPE html>
-<html lang="en" data-root="{root}">
+<html lang="{lang}" data-root="{root}"{alt_attr}>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>{e(title)}</title>
 <meta name="description" content="{e(desc)}">
 <link rel="canonical" href="{url}">
-<meta name="robots" content="index, follow, max-image-preview:large">
+{alts}<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="theme-color" content="#151412">
 <meta name="geo.region" content="IN-MP"><meta name="geo.placename" content="Bhopal">
-<meta property="og:type" content="website"><meta property="og:site_name" content="{BRAND}"><meta property="og:locale" content="en_IN">
+<meta property="og:type" content="website"><meta property="og:site_name" content="{BRAND}"><meta property="og:locale" content="{"hi_IN" if lang == "hi" else "en_IN"}">
 <meta property="og:url" content="{url}"><meta property="og:title" content="{e(title)}"><meta property="og:description" content="{e(desc)}">
 <meta property="og:image" content="{SITE_URL}{img}"><meta property="og:image:alt" content="{e(title)}">
 <meta name="twitter:card" content="summary_large_image">
@@ -290,9 +337,10 @@ def head(root, path, title, desc, img="assets/img/scenes/hero.webp", schema="", 
 <link rel="manifest" href="{root}site.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Barlow+Condensed:wght@500;600;700&family=Mukta:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="{FONTS}" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="{FONTS}"></noscript>
 <link rel="stylesheet" href="{root}assets/css/site.css?v={VER}">
-{extra}{schema}
+{extra}{schema}{analytics_tags()}
 <script src="{root}assets/js/data.js?v={VER}" defer></script>
 <script src="{root}assets/js/site.js?v={VER}" defer></script>
 </head>
@@ -317,12 +365,12 @@ def header(root):
       <span><b>{BRAND}</b><small>Paver blocks · Kerb stones</small></span>
     </a>
     <nav class="menu" aria-label="Main">
-      <a href="{root}products/">Products</a>
+      <a href="{root}products/" data-i18n="nav.products">Products</a>
       <a href="{root}#studio" data-i18n="nav.studio">Pattern studio</a>
       <a href="{root}#load" data-i18n="nav.load">Load guide</a>
       <a href="{root}#desk" id="navDesk">Home guide</a>
-      <a href="{root}paver-blocks-bhopal/">Bhopal</a>
-      <a href="{root}paver-blocks-mandideep/">Mandideep</a>
+      <a href="{root}paver-blocks-bhopal/" data-i18n="nav.bhopal">Bhopal</a>
+      <a href="{root}paver-blocks-mandideep/" data-i18n="nav.mandideep">Mandideep</a>
     </nav>
     <div class="tools">
       <button class="icon-btn" type="button" id="langBtn" aria-label="Switch language to Hindi">हिं</button>
@@ -339,12 +387,20 @@ def footer(root):
     prods = "".join(f'<li><a href="{root}products/{p["slug"]}/">{e(p["full"])}</a></li>' for p in PRODUCTS[:8])
     wa = e(wa_link("Hello Satyam Pavers, I would like to send an enquiry about paver blocks."))
     area_links = " · ".join(f'<a href="{root}{a["slug"]}/">{a["name"]}</a>' for a in SERVICE_AREAS)
+    use_links = "".join(f'<li><a href="{root}uses/{u["slug"]}/">{e(u["short"])}</a></li>' for u in USES)
+    guide_links = "".join(f'<li><a href="{root}{g["slug"]}/">{e(g["h1"])}</a></li>' for g in GUIDES)
+    hours = "".join(f'<li>{e(l["role"])} hours: ' + "; ".join(f'{days[0][:3]}–{days[-1][:3]} {o}–{c}' if len(days) > 1 else f'{days[0][:3]} {o}–{c}' for days, o, c in HOURS[l["id"]]) + '</li>' for l in LOCATIONS if HOURS.get(l["id"]))
+    facts = " ".join(x for x in [f"Making paver blocks since {YEARS}." if YEARS else "", f"GSTIN {e(GSTIN)}." if GSTIN else ""] if x)
+    email = f'<li>Email: <a href="mailto:{e(EMAIL)}">{e(EMAIL)}</a></li>' if EMAIL else ""
     return f'''<footer><div class="wrap">
   <div><b class="foot-brand"><svg width="28" height="28" aria-hidden="true"><use href="#logo"/></svg>{BRAND}</b><p style="margin-top:8px;max-width:30em">Concrete paver blocks, kerb stones and paver tiles, made in Mandideep for Bhopal, Indore and central Madhya Pradesh.</p>
-    <p style="margin-top:14px"><a class="btn btn-primary" href="{root}contact/">Send enquiry</a></p></div>
-  <div><h4>Products</h4><ul>{prods}<li><a href="{root}products/">All products →</a></li></ul></div>
-  <div><h4>Visit us</h4><ul>{locs}<li><a href="{root}paver-blocks-bhopal/">Paver blocks in Bhopal</a></li><li><a href="{root}paver-blocks-mandideep/">Paver blocks in Mandideep</a></li><li><a href="{root}contact/">Contact &amp; enquiry</a></li><li><a href="{root}tools/paver-calculator/">Paver block calculator</a></li><li><a href="{root}guides/how-to-lay-paver-blocks/">How to lay paver blocks</a></li><li><a href="{root}guides/paver-block-maintenance/">Paver care guide</a></li><li>Delivery: {area_links}</li><li class="num">Mobile: <a href="tel:{CONTACT["tel"]}">{CONTACT["display"]}</a></li></ul></div>
-  <div class="legal">{BRAND} is a brand of {e(LEGAL)}, Madhya Pradesh. Sizes and block counts are typical values; colours of real blocks vary slightly in shade. Page updated {TODAY}.</div>
+    <p style="margin-top:14px"><a class="btn btn-primary" href="{root}contact/">Send enquiry</a></p>
+    <p style="margin-top:14px"><a href="{root}hi/" lang="hi">हिंदी में पढ़ें: भोपाल में पेवर ब्लॉक</a></p></div>
+  <div><h4>Products</h4><ul>{prods}<li><a href="{root}products/">All products →</a></li></ul>
+    <h4 style="margin-top:20px">By use</h4><ul>{use_links}</ul></div>
+  <div><h4>Visit us</h4><ul>{locs}{hours}<li><a href="{root}paver-blocks-bhopal/">Paver blocks in Bhopal</a></li><li><a href="{root}paver-blocks-mandideep/">Paver blocks in Mandideep</a></li><li><a href="{root}contact/">Contact &amp; enquiry</a></li><li><a href="{root}tools/paver-calculator/">Paver block calculator</a></li><li>Delivery: {area_links}</li><li class="num">Mobile: <a href="tel:{CONTACT["tel"]}">{CONTACT["display"]}</a></li>{email}</ul>
+    <h4 style="margin-top:20px">Guides</h4><ul>{guide_links}</ul></div>
+  <div class="legal">{BRAND} is a brand of {e(LEGAL)}, Madhya Pradesh. {facts} Sizes and block counts are typical values; colours of real blocks vary slightly in shade. Page updated {TODAY}.</div>
 </div></footer>
 
 <a class="float-wa" href="{wa}" target="_blank" rel="noopener" aria-label="Send enquiry on WhatsApp"><svg><use href="#wa"/></svg></a>
@@ -411,17 +467,36 @@ def place_html(l, root):
     return (f'<div class="place"><div><h3>{e(l["role"])}</h3><p>{e(addr_line(l))}</p></div>'
             f'<div class="row2"><a class="link" href="{root}{l["slug"]}/">About this location</a><a class="link" href="{maps_link(l)}" target="_blank" rel="noopener">Directions</a></div></div>')
 
-def enquiry_form(root, product="", city=""):
+def enquiry_form(root, product="", city="", message="", hi=False):
     opts = "".join(f'<option{" selected" if p["full"] == product else ""}>{e(p["full"])}</option>' for p in PRODUCTS)
-    return f'''<form class="form enq" novalidate>
-  <div><div class="label" style="color:var(--ink)">Send enquiry</div><p class="note">Your enquiry opens in WhatsApp, typed in and ready. Nothing is sent until you press send there.</p></div>
-  <label>Your name<input name="name" autocomplete="name" required></label>
-  <label>Mobile number<input name="phone" type="tel" autocomplete="tel" inputmode="tel" required></label>
-  <label>Product<select name="product"><option value="">Not sure yet — please suggest</option>{opts}</select></label>
-  <label>Area in sq ft (approx.)<input name="area" type="number" min="1" inputmode="numeric"></label>
-  <label>Site location<input name="city" value="{e(city)}" placeholder="e.g. Kolar Road, Bhopal"></label>
-  <label>Anything else<input name="message" placeholder="Thickness, colour, timeline…"></label>
-  <button class="btn btn-wa" type="submit"><svg><use href="#wa"/></svg>Send enquiry</button>
+    T = (dict(h="पूछताछ भेजें", note="आपकी पूछताछ WhatsApp में लिखी हुई खुलेगी। वहाँ भेजें दबाने तक कुछ नहीं जाता।", name="आपका नाम", phone="मोबाइल नंबर",
+              product="ब्लॉक", unsure="पता नहीं — आप सुझाइए", area="एरिया (लगभग वर्ग फ़ुट)", city="साइट की जगह", ph_city="जैसे कोलार रोड, भोपाल",
+              msg="और कुछ", ph_msg="मोटाई, रंग, कब तक चाहिए…", send="पूछताछ भेजें") if hi else
+         dict(h="Send enquiry", note="Your enquiry opens in WhatsApp, typed in and ready. Nothing is sent until you press send there.", name="Your name", phone="Mobile number",
+              product="Product", unsure="Not sure yet — please suggest", area="Area in sq ft (approx.)", city="Site location", ph_city="e.g. Kolar Road, Bhopal",
+              msg="Anything else", ph_msg="Thickness, colour, timeline…", send="Send enquiry"))
+    return f'''<form class="form enq" novalidate{' data-lang="hi"' if hi else ''}>
+  <div><div class="label" style="color:var(--ink)">{T["h"]}</div><p class="note">{T["note"]}</p></div>
+  <label>{T["name"]}<input name="name" autocomplete="name" required></label>
+  <label>{T["phone"]}<input name="phone" type="tel" autocomplete="tel" inputmode="tel" required></label>
+  <label>{T["product"]}<select name="product"><option value="">{T["unsure"]}</option>{opts}</select></label>
+  <label>{T["area"]}<input name="area" type="number" min="1" inputmode="numeric"></label>
+  <label>{T["city"]}<input name="city" value="{e(city)}" placeholder="{T["ph_city"]}"></label>
+  <label>{T["msg"]}<input name="message" value="{e(message)}" placeholder="{T["ph_msg"]}"></label>
+  <button class="btn btn-wa" type="submit"><svg><use href="#wa"/></svg>{T["send"]}</button>
+  <div class="enq-done" role="status" tabindex="-1" hidden></div>
+</form>'''
+
+def callback_form(topic, hi=False):
+    """One-field 'call me back' request. It goes through the same WhatsApp flow as the enquiry form."""
+    h, p, b, n = (("कॉल बैक चाहिए?", "मोबाइल नंबर", "मुझे कॉल करें", "नंबर छोड़िए, हमारी सेल्स टीम आपको कॉल करेगी।") if hi else
+                  ("Rather talk it through?", "Your mobile number", "Call me back", "Leave your number and our sales team will call you."))
+    return f'''<form class="form enq cb" data-kind="callback" novalidate{' data-lang="hi"' if hi else ''}>
+  <div><div class="label" style="color:var(--ink)">{h}</div><p class="note">{n}</p></div>
+  <input type="hidden" name="product" value="{e(topic)}">
+  <div class="cb-row"><label class="sr">{p}<input name="phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="{p}" required></label>
+  <button class="btn btn-ink" type="submit"><svg><use href="#phone"/></svg>{b}</button></div>
+  <div class="enq-done" role="status" tabindex="-1" hidden></div>
 </form>'''
 
 # ---------- delivery-town pages ----------
@@ -431,6 +506,7 @@ SERVICE_AREAS = [
   dict(name="Narmadapuram", slug="paver-blocks-narmadapuram", km=55, note="Trucks run straight down NH-46 from Mandideep to Narmadapuram, Itarsi-side sites included.", popular=["zigzag", "cobble", "curved"]),
   dict(name="Sehore", slug="paver-blocks-sehore", km=65, note="For Sehore town and the Bhopal–Sehore road belt, we plan full-truck deliveries that match your site schedule.", popular=["rectangular", "zigzag", "tiles"]),
   dict(name="Vidisha", slug="paver-blocks-vidisha", km=85, note="For Vidisha we usually deliver in full truckloads, so larger driveways, colony roads and campus jobs work best.", popular=["ishape", "rectangular", "curved"]),
+  dict(name="Indore", slug="paver-blocks-indore", km=215, note="Indore orders travel by full truckload along the Bhopal–Indore highway via Sehore and Dewas, so they suit colony roads, factory and warehouse yards, campuses and larger driveways. Tell us your quantity and we plan the trucks around your site schedule.", popular=["zigzag", "ishape", "curved"]),
 ]
 def build_area(a):
     root = "../"
@@ -461,6 +537,129 @@ def build_area(a):
           f"Paver blocks, interlocking tiles and kerb stones delivered to {n} from our Mandideep factory, {a['km']} km away. Send an enquiry for factory-direct terms.",
           img="assets/img/stock/colony-road.webp", schema=ld(graph)) + header(root) + main + footer(root))
 
+# ---------- pages by use (what will drive on the floor) ----------
+# Build-up numbers match the home-page load guide (assets/js/site.js LOADS): block + 30 mm sand + compacted stone sub-base.
+USES = [
+  dict(slug="paver-blocks-for-driveway", short="Home driveways", h1="Paver blocks for a home driveway",
+       title="Paver Blocks for Driveway in Bhopal | Thickness & Pattern — Satyam Pavers",
+       desc="Which paver block for a home driveway: 60 or 80 mm, zig-zag or rectangular in herringbone, how deep to dig and how many blocks you need. Made in Mandideep.",
+       label="Homeowners · cars and SUVs", img="onsite/zigzag", img_alt="Zig-zag paver blocks laid on a driveway",
+       answer="For a home driveway, use 60 mm interlocking blocks if a car parks there now and then, and 80 mm for daily cars and SUVs. Zig-zag (uni) blocks, or rectangular blocks laid in herringbone, hold best under turning wheels. Dig about 300 mm, build a 200 mm compacted stone base with 30 mm of sand on top, and fix kerb stones along the open edges.",
+       build=dict(mm="60 / 80 mm", grade="M35–M40", base="150–200 mm", dig="240–310 mm"),
+       picks=[("zigzag", "60 or 80 mm. Locks on every side; the most popular driveway block in Bhopal."), ("rectangular", "80 mm in herringbone. A classic look that takes turning cars."),
+              ("combo5", "60 or 80 mm. A random, stone-like look for villas and farmhouses."), ("curved", "Kerb stones along the open edges stop blocks spreading.")],
+       body=[("Pattern", "Lay rectangular blocks in herringbone (at 45° or 90°) on a driveway: the zig-zag joints spread the push from turning and braking wheels. Avoid stack bond, where long straight joints let blocks creep."),
+             ("Slope and drainage", "Give the driveway a fall of about 1 in 60 away from the house, towards the gate or a drain. Water that stands on the sand bed through Bhopal's monsoon is what makes driveways sink."),
+             ("Colours", "Grey hides tyre marks best. A border of red or yellow blocks frames the drive and marks the edges at night. Ask for one batch for the whole drive so the shade matches.")],
+       faqs=[("Is 60 mm enough for a car driveway?", "Yes, for a home driveway where one car parks and drives slowly, as long as the stone base is built and compacted properly. Choose 80 mm for SUVs, daily use, or if delivery trucks or water tankers will come in."),
+             ("How many blocks do I need for a 20 × 30 ft driveway?", "A 20 × 30 ft driveway is 600 sq ft. That is about 2,460 zig-zag blocks or about 2,900 rectangular blocks, including 5% extra for cutting at the edges."),
+             ("Can paver blocks be laid over my old concrete driveway?", "Only if the old slab is sound and already slopes so water runs off. Lay a 25–30 mm sand bed on it, fix kerbs at the edges and leave a drainage path at the low end. If the slab is cracked or sinking, break it out and build a proper stone base."),
+             ("How soon can I drive on a new paver driveway?", "As soon as the blocks are compacted and the joints are filled with sand. Unlike a concrete slab, there is no curing time to wait for.")]),
+  dict(slug="parking-paver-blocks", short="Car parks", h1="Paver blocks for parking areas",
+       title="Parking Paver Blocks in Bhopal | Car Park Paving — Satyam Pavers",
+       desc="Paver blocks for car parks at shops, hospitals, offices and societies: 80 or 100 mm zig-zag and I-shape blocks, bay marking in coloured blocks, base depth and block count.",
+       label="Shops, hospitals, offices, societies", img="stock/zigzag-parking", img_alt="Zig-zag pavers in a parking bay",
+       answer="For a car park, use 80 mm zig-zag (uni) or I-shape (Behaton) interlocking blocks on a 200 mm compacted stone base. Where buses, trucks or delivery vans come in, step up to 100 mm. Mark bays and walkways in a contrasting colour of block instead of paint, so the markings never wear off.",
+       build=dict(mm="80 / 100 mm", grade="M35–M50", base="200–250 mm", dig="310–380 mm"),
+       picks=[("zigzag", "80 mm for cars, 100 mm where vans and trucks come in."), ("ishape", "80 or 100 mm. Spreads wheel loads; a favourite for large car parks."),
+              ("rectangular", "80 mm in herringbone for smaller parking courts."), ("curved", "Kerbs round islands, medians and the paved edge.")],
+       body=[("Mark bays in block, not paint", "Lay bay lines, arrows and walkways in yellow or red blocks against a grey field. The colour runs right through each block, so the markings last as long as the floor."),
+             ("Drainage", "Give the car park a fall of about 1 in 60 towards drains. A car park that holds water loses its joint sand first, and the blocks start to rock."),
+             ("Repairs without patches", "When a cable or drain line under the car park needs work, lift the blocks, fix it and lay the same blocks back. There is no patch of new concrete to show where you dug.")],
+       faqs=[("Which thickness is right for a car park?", "80 mm for cars and SUVs. 100 mm if buses, delivery trucks or water tankers use it, even now and then."),
+             ("How many blocks for a 5,000 sq ft car park?", "About 20,500 zig-zag blocks or about 18,900 I-shape blocks, including 5% extra for cutting at the edges."),
+             ("Can you supply a large car park in phases?", "Yes. Large orders are made to schedule at our Mandideep plant and sent by the truckload as each section of your site is ready, colour-matched across batches."),
+             ("Can bay lines be made in a different colour?", "Yes. Order a few hundred blocks in yellow or red alongside the grey, and lay them as lines and arrows. Tell us the layout and we will work out the split.")]),
+  dict(slug="society-road-paver-blocks", short="Society & colony roads", h1="Paver blocks for society and colony roads",
+       title="Paver Blocks for Society & Colony Roads | Bhopal — Satyam Pavers",
+       desc="Paver blocks for housing-society and colony internal roads and footpaths: 80 mm I-shape and zig-zag, kerb stones, base depth, and phased supply for builders.",
+       label="Builders · housing societies · colonies", img="onsite/society-road", img_alt="Society road paved with grey zig-zag pavers and red bands",
+       answer="For colony and society internal roads, use 80 mm I-shape (Behaton) or zig-zag interlocking blocks on a 200–250 mm compacted stone base, with kerb stones on both edges. Footpaths beside the road can be 60 mm. Builders can order phase by phase, with colour matched across batches.",
+       build=dict(mm="80 mm (roads) · 60 mm (footpaths)", grade="M35–M40", base="200–250 mm", dig="310–360 mm"),
+       picks=[("ishape", "80 mm. Locks on four sides and spreads wheel loads along the road."), ("zigzag", "80 mm. The other favourite for colony roads; strong under braking."),
+              ("rectangular", "60 mm for footpaths, laid in running bond."), ("curved", "Kerb stones on both edges of every road; curved kerbs at corners.")],
+       body=[("Kerbs first", "Set kerb stones on a concrete bed along both edges before any block is laid. Without them the blocks slowly spread sideways under wheels and the road opens up at the edges."),
+             ("Bands at gates and junctions", "A band of red or yellow blocks across the road at gates, speed breakers and junctions slows traffic and marks crossings without paint."),
+             ("Services under the road", "Water, sewer and cable lines under a paver road can be reached by lifting the blocks and laying the same ones back. With a concrete road the cut stays visible for good."),
+             ("Phased supply for builders", "Send your total quantity and phase plan. We make to schedule at Mandideep and send full truckloads as each phase is ready, from matched batches so the shade stays even across the colony.")],
+       faqs=[("Which paver block is best for a society road?", "80 mm I-shape (Behaton) or zig-zag (uni) interlocking blocks. Both lock on all sides and spread car loads. Use 100 mm where buses, school vans or construction trucks run daily."),
+             ("Why do I need kerb stones?", "Kerbs hold the edge of the paving. Without them the outer blocks move outwards under wheels and the joints open up across the road."),
+             ("Can we get the whole colony in one shade?", "Yes. Tell us the total quantity at the start and we plan production so every phase comes from matched batches."),
+             ("Do you give a supply plan for builders?", "Yes. Send the road and footpath areas and your phase dates, and our team sends a supply plan with block counts, kerb lengths and delivery dates.")]),
+  dict(slug="petrol-pump-paver-blocks", short="Petrol pumps", h1="Paver blocks for petrol pumps",
+       title="Paver Blocks for Petrol Pumps | Heavy-Duty 100 mm — Satyam Pavers",
+       desc="Heavy-duty paver blocks for petrol pump forecourts: 100 mm zig-zag and I-shape blocks, M40–M50 grade, base depth, oil stains, and paving in phases while the pump stays open.",
+       label="Fuel stations · forecourts · tanker areas", img="stock/zigzag-laid", img_alt="Grey zig-zag paving with red bands",
+       answer="Petrol pump forecourts carry tankers, trucks and braking cars, so use 100 mm zig-zag (uni) or I-shape (Behaton) interlocking blocks, grade M40–M50, on a 250 mm compacted stone base, with kerb stones round the islands and edges. Oil drips can be cleaned off, and a stained or damaged block can be lifted and swapped.",
+       build=dict(mm="100 mm", grade="M40–M50", base="250 mm", dig="about 380 mm"),
+       picks=[("zigzag", "100 mm. The standard forecourt block; wavy joints resist braking wheels."), ("ishape", "100 mm. Spreads tanker loads; good for the unloading bay."),
+              ("antiskid", "For the walkway to the shop and air point; grippy when wet."), ("curved", "Kerbs round fuel islands, medians and the forecourt edge.")],
+       body=[("The tanker bay", "The spot where the tanker stands to unload takes the heaviest load on the site. Use 100 mm blocks there and give it the full stone base, even if the car lanes are lighter."),
+             ("Oil and fuel stains", "Soak fresh spills with sawdust or cement powder, then scrub with detergent and warm water. A block that stays badly stained can be lifted and replaced with one from the same batch."),
+             ("Keep the pump open", "Paving can go in section by section. Each section takes traffic as soon as it is compacted and the joints are filled, so part of the forecourt can stay open while the rest is laid.")],
+       faqs=[("Which paver thickness for a petrol pump?", "100 mm, grade M40–M50, on a 250 mm compacted stone base. Tankers and trucks turn and brake on a forecourt every day, so thinner blocks wear and rut."),
+             ("Will diesel and oil damage paver blocks?", "Spills stain concrete but do not weaken a well-made block. Clean fresh spills quickly; a breathable concrete sealer makes cleaning easier."),
+             ("Can the forecourt be paved without closing the pump?", "Yes. Lay it section by section; each section can be used once it is compacted and the joints are filled."),
+             ("How many blocks for a 10,000 sq ft forecourt?", "About 41,000 zig-zag blocks or about 37,800 I-shape blocks, including 5% extra for cutting. Send your drawing and we will confirm the count and kerb length.")]),
+  dict(slug="factory-yard-paver-blocks", short="Factory & warehouse yards", h1="Heavy-duty paver blocks for factory yards",
+       title="Heavy Duty Paver Blocks for Factory & Warehouse Yards — Satyam Pavers",
+       desc="Heavy-duty 100 mm I-shape and zig-zag paver blocks for factory yards, warehouses, loading bays and truck roads in Mandideep, Govindpura and Bhopal. M50 for forklifts.",
+       label="Factories · warehouses · loading bays", img="onsite/ishape", img_alt="I-shape paver blocks laid on site",
+       answer="For factory yards, warehouses and loading bays, use 100 mm I-shape (Behaton) interlocking blocks, grade M50 where forklifts and containers run, on a 250–300 mm compacted stone base. 100 mm zig-zag suits truck roads. Pavers take point loads from forklift wheels and container legs, and can be lifted when underground services need work.",
+       build=dict(mm="100 mm", grade="M40–M50", base="250–300 mm", dig="380–430 mm"),
+       picks=[("ishape", "100 mm, M50. The heavy-duty choice for forklifts, containers and loading bays."), ("zigzag", "100 mm. Truck roads and turning areas, laid in herringbone."),
+              ("curved", "Kerbs along roads, loading-bay edges and green areas.")],
+       body=[("Close to Mandideep and Govindpura", "Our factory is in Mandideep industrial area itself, so units in Mandideep and Obedullaganj get the shortest delivery runs, and Govindpura and other Bhopal industrial areas are a short trip up NH-46."),
+             ("Forklifts and point loads", "Forklift wheels and container legs press on a small area. A 100 mm M50 block on a well-compacted 300 mm base spreads that load; a thinner block or a weak base lets it punch down and rock."),
+             ("Plan the yard in zones", "Pave forklift aisles and loading bays in 100 mm M50, truck roads in 100 mm, and staff walkways in 60 mm. Zoning keeps the cost in the places that carry the load.")],
+       faqs=[("Which paver block for forklifts?", "100 mm I-shape (Behaton) blocks in M50 grade on a 300 mm compacted stone base. Ask your site engineer to confirm the base for your soil."),
+             ("Are paver blocks better than a concrete floor for a yard?", "For outdoor yards, usually yes: pavers do not crack across the whole surface, drain at the joints, and can be lifted to reach cables and pipes. Indoor warehouse floors that need to be dead flat for racking are usually concrete."),
+             ("How are the blocks checked?", "Sample blocks are checked for size, strength and water absorption before dispatch. Ask us for the details for the grade you order."),
+             ("Can you supply a large yard on a schedule?", "Yes. Send the area and the dates, and we make to schedule and deliver by the truckload as each zone is ready.")]),
+]
+def uses_for(pid): return [u for u in USES if any(i == pid for i, _ in u["picks"])]
+
+def build_use(u):
+    root = "../../"
+    url = f'uses/{u["slug"]}/'
+    b = u["build"]
+    rows = "".join(f'<tr><th scope="row">{k}</th><td>{e(v)}</td></tr>' for k, v in [("Block thickness", b["mm"]), ("Strength grade", b["grade"]), ("Bedding sand", "25–30 mm"), ("Stone sub-base (compacted)", b["base"]), ("Total dig depth (approx.)", b["dig"])])
+    picks = "".join(f'<li><a class="link" href="{root}products/{P(i)["slug"]}/">{e(P(i)["full"])}</a><br><span class="note" style="font-size:.92rem">{e(t)}</span></li>' for i, t in u["picks"])
+    cards = "".join(card(P(i), root, 9, interactive=False) for i, _ in u["picks"][:3])
+    secs = "".join(f'<h2 class="h2" style="margin-top:40px">{e(h)}</h2><p style="margin-top:10px;max-width:68ch">{e(t)}</p>' for h, t in u["body"])
+    others = " · ".join(f'<a class="link" href="{root}uses/{x["slug"]}/">{e(x["short"])}</a>' for x in USES if x is not u)
+    graph = [org_schema(), {"@type": "Service", "name": u["h1"], "serviceType": "Concrete paver block supply", "description": u["answer"], "provider": {"@id": ORG_ID},
+              "areaServed": [{"@type": "City", "name": a} for a in AREAS]},
+             crumbs([("Home", ""), (u["h1"], url)]), faq_schema(u["faqs"])]
+    main = f'''<main id="main"><section><div class="wrap">
+  <nav class="crumbs" aria-label="Breadcrumb"><a href="{root}">Home</a> / <span>{e(u["h1"])}</span></nav>
+  <div class="prod">
+    <figure class="gal"><img src="{root}assets/img/{u["img"]}.webp" alt="{e(u["img_alt"])}" width="1100" height="825" fetchpriority="high"></figure>
+    <div class="prod-info">
+      <div class="label">{e(u["label"])}</div>
+      <h1 class="h1">{e(u["h1"])}</h1>
+      <p class="answer">{e(u["answer"])}</p>
+      <div class="row2"><a class="btn btn-primary" href="#enquiry">Send enquiry</a><a class="link" href="{root}tools/paver-calculator/">Count your blocks</a></div>
+    </div>
+  </div>
+  <div class="prod-cols">
+    <div><h2 class="h2">Build-up</h2><div class="tbl" style="margin-top:14px"><table class="spec"><tbody>{rows}</tbody></table></div>
+      <p class="note" style="margin-top:8px">Typical build-up. Your site engineer confirms the sub-base for your soil. See the <a href="{root}#load">load guide</a> and <a href="{root}guides/how-to-lay-paver-blocks/">how to lay paver blocks</a>.</p></div>
+    <div><h2 class="h2">Blocks we suggest</h2><ul class="asklist" style="margin-top:14px">{picks}</ul></div>
+  </div>
+  {secs}
+  <h2 class="h2" style="margin-top:56px">Suggested blocks</h2>
+  <div class="products" style="margin-top:20px">{cards}</div>
+  <div class="prod-cols" style="margin-top:56px" id="enquiry">
+    <div>{enquiry_form(root, message="For: " + u["short"].lower())}</div>
+    <div><h2 class="h2">Questions</h2><div class="faq" style="margin-top:16px">{faq_html(u["faqs"])}</div>
+      <div style="margin-top:24px">{callback_form(u["h1"])}</div>
+      <p style="margin-top:20px">Other uses: {others}</p></div>
+  </div>
+</div></section></main>
+'''
+    write(url + "index.html", head(root, url, u["title"], u["desc"], img=f'assets/img/{u["img"]}.webp', schema=ld(graph)) + header(root) + main + footer(root))
+
 # ---------- guides ----------
 GUIDES = [
   dict(slug="guides/how-to-lay-paver-blocks", title="How to Lay Paver Blocks: Step-by-Step Guide | Satyam Pavers", h1="How to lay paver blocks",
@@ -483,25 +682,112 @@ GUIDES = [
               ("Joint sand", "Check the joints after every monsoon and brush in fresh dry sand where it has washed out. Full joints keep the blocks locked together."),
               ("Sunken or broken blocks", "Lift the blocks in the low area, add and level sand underneath, and re-lay the same blocks. Replace a broken block with one from the same colour batch."),
               ("Sealing (optional)", "A breathable concrete sealer deepens the colour and resists stains. Apply it on clean, dry paving, and re-apply every two to three years.")]),
+  dict(slug="guides/paver-block-price-bhopal", title="Paver Block Price in Bhopal: What Decides the Cost | Satyam Pavers", h1="Paver block price in Bhopal: what decides the cost",
+       desc="What decides the price of paver blocks in Bhopal: thickness, shape, colour, finish, quantity and delivery. How to compare quotes and get an exact rate in one message.",
+       answer="The price of paver blocks in Bhopal depends on six things: thickness, shape, colour, surface finish, quantity and delivery distance. Laying is a separate cost from supply. Send us your area, block, thickness, colour and site location, and we reply the same working day with factory-direct terms for your order.",
+       howto=False, enquiry=True,
+       steps=[("Thickness", "Thickness moves the price most, because it sets how much concrete goes into each block. 60 mm costs least, then 80 mm, then 100 mm. Buy the thickness your load needs and no more: 60 mm for paths and light driveways, 80 mm for daily cars and colony roads, 100 mm for trucks and forklifts."),
+              ("Shape and coverage", "Quotes come per block or per square foot. Always compare per square foot: a zig-zag block covers more ground than a rectangular one, so you need fewer of them (about 3.9 against 4.6 per sq ft)."),
+              ("Colour and finish", "Grey blocks have no added pigment and are usually the lowest-priced. Red, yellow, black and other colours have pigment mixed through the block, which adds to the cost. Decorative faces such as slate, cobble, speckled and anti-skid cost more than plain blocks."),
+              ("Quantity", "Larger orders get better terms, because making and delivering by the full truckload spreads the cost over more blocks. Builders paving a whole colony can fix terms once for phased delivery."),
+              ("Delivery distance and site access", "Our factory is in Mandideep, about 25 km from Bhopal. Sites in Bhopal, Mandideep and Obedullaganj are the shortest runs; Raisen, Sehore, Vidisha, Narmadapuram and Indore are further. Narrow lanes where a truck cannot reach the site add handling."),
+              ("Supply and laying are separate", "The supply price covers blocks delivered to your site. Laying adds labour, sand, the stone sub-base, kerb stones and compaction, and depends on how much digging your site needs. When you compare quotes, compare supply with supply and laying with laying."),
+              ("Watch out for very cheap blocks", "A block much cheaper than the rest is often thinner than stated, cured for too short a time or low in cement. Check the thickness with a tape, look for clean, sharp edges and even colour, and ask which strength grade it is made to."),
+              ("Get an exact rate in one message", "Send the area in square feet, the block (or what will drive on it), thickness, colour, site location and when you need it. That is everything we need to quote. Use the enquiry form below or WhatsApp.")],
+       faqs=[("What is the price of paver blocks per sq ft in Bhopal?", "It depends on thickness, shape, colour, finish, quantity and site location, so we quote for each order. Send those details and we reply with factory-direct terms the same working day."),
+             ("Are grey paver blocks cheaper than coloured ones?", "Usually, yes. Grey blocks have no added pigment; red, yellow and black blocks carry the cost of the pigment mixed through them."),
+             ("Is delivery included in the price?", "The terms we send are for delivery to your site location, so you can compare them directly with other quotes."),
+             ("Why buy from the factory instead of a dealer?", "We make the blocks at our own Mandideep plant and sell from our MP Nagar office, with no dealer margin in between. Your order comes from matched batches, so the shade stays even across the floor.")],
+       hi=dict(title="भोपाल में पेवर ब्लॉक का रेट: क़ीमत किन बातों पर तय होती है | सत्यम पेवर्स", h1="भोपाल में पेवर ब्लॉक का रेट किन बातों पर तय होता है",
+               desc="भोपाल में पेवर ब्लॉक का रेट मोटाई, आकार, रंग, फ़िनिश, मात्रा और डिलीवरी पर निर्भर करता है। कोटेशन की तुलना कैसे करें और एक मैसेज में सही रेट कैसे पाएँ।",
+               answer="भोपाल में पेवर ब्लॉक का रेट छह बातों पर तय होता है: मोटाई, आकार, रंग, सतह की फ़िनिश, मात्रा और साइट की दूरी। बिछाई (लेइंग) का खर्च सप्लाई से अलग होता है। अपना एरिया, ब्लॉक, मोटाई, रंग और साइट की जगह भेजिए — हम उसी कामकाजी दिन फैक्ट्री-डायरेक्ट रेट भेजते हैं।",
+               steps=[("मोटाई", "रेट पर सबसे ज़्यादा असर मोटाई का होता है, क्योंकि इसी से तय होता है कि हर ब्लॉक में कितना कंक्रीट लगेगा। 60 mm सबसे सस्ता, फिर 80 mm, फिर 100 mm। उतनी ही मोटाई लें जितनी ज़रूरत है: पैदल रास्ते और हल्के ड्राइववे के लिए 60 mm, रोज़ की कारों और कॉलोनी की सड़कों के लिए 80 mm, ट्रक और फ़ोर्कलिफ़्ट के लिए 100 mm।"),
+                      ("आकार और कवरेज", "रेट प्रति ब्लॉक या प्रति वर्ग फ़ुट बताया जाता है। तुलना हमेशा प्रति वर्ग फ़ुट करें: ज़िग-ज़ैग ब्लॉक रेक्टैंगुलर से ज़्यादा जगह ढकता है, इसलिए कम ब्लॉक लगते हैं (लगभग 3.9 बनाम 4.6 प्रति वर्ग फ़ुट)।"),
+                      ("रंग और फ़िनिश", "ग्रे ब्लॉक में अलग से रंग नहीं मिलाया जाता, इसलिए वह आम तौर पर सबसे किफ़ायती होता है। लाल, पीले और काले ब्लॉक में रंग पूरे ब्लॉक में मिला होता है, जिससे क़ीमत बढ़ती है। स्लेट, कोबल, स्पेकल्ड और एंटी-स्किड जैसी डिज़ाइनर सतहें सादे ब्लॉक से महँगी होती हैं।"),
+                      ("मात्रा", "बड़े ऑर्डर पर बेहतर रेट मिलता है, क्योंकि पूरे ट्रक के हिसाब से बनाने और भेजने में खर्च ज़्यादा ब्लॉकों पर बँट जाता है। पूरी कॉलोनी बनाने वाले बिल्डर चरणों में डिलीवरी के लिए एक बार में रेट तय कर सकते हैं।"),
+                      ("दूरी और साइट तक पहुँच", "हमारी फैक्ट्री मंडीदीप में है, भोपाल से लगभग 25 km। भोपाल, मंडीदीप और ओबेदुल्लागंज सबसे पास हैं; रायसेन, सीहोर, विदिशा, नर्मदापुरम और इंदौर दूर हैं। जहाँ ट्रक साइट तक न पहुँच सके, वहाँ ढुलाई का खर्च बढ़ता है।"),
+                      ("सप्लाई और बिछाई अलग हैं", "सप्लाई रेट में साइट तक पहुँचाए गए ब्लॉक आते हैं। बिछाई में मज़दूरी, रेत, गिट्टी का बेस, कर्ब स्टोन और कॉम्पैक्शन जुड़ते हैं, जो आपकी साइट की खुदाई पर निर्भर है। कोटेशन मिलाते समय सप्लाई की तुलना सप्लाई से और बिछाई की बिछाई से करें।"),
+                      ("बहुत सस्ते ब्लॉक से सावधान", "जो ब्लॉक बाक़ी से बहुत सस्ता हो, वह अक्सर बताई गई मोटाई से पतला, कम दिन क्योरिंग वाला या कम सीमेंट वाला होता है। टेप से मोटाई नापें, साफ़ और सीधे किनारे और एक जैसा रंग देखें, और पूछें कि ब्लॉक किस स्ट्रेंथ ग्रेड का है।"),
+                      ("एक मैसेज में सही रेट", "एरिया (वर्ग फ़ुट), ब्लॉक (या उस पर क्या चलेगा), मोटाई, रंग, साइट की जगह और कब तक चाहिए — बस इतना भेजिए। नीचे दिया फ़ॉर्म या WhatsApp इस्तेमाल करें।")],
+               faqs=[("भोपाल में पेवर ब्लॉक का रेट प्रति वर्ग फ़ुट क्या है?", "रेट मोटाई, आकार, रंग, फ़िनिश, मात्रा और साइट की जगह पर निर्भर है, इसलिए हम हर ऑर्डर के लिए अलग रेट देते हैं। ये जानकारी भेजिए, उसी कामकाजी दिन जवाब मिलेगा।"),
+                     ("क्या ग्रे पेवर ब्लॉक रंगीन ब्लॉक से सस्ते होते हैं?", "आम तौर पर हाँ। ग्रे ब्लॉक में अलग से रंग नहीं मिलाया जाता; लाल, पीले और काले ब्लॉक में रंग का खर्च जुड़ता है।"),
+                     ("क्या डिलीवरी रेट में शामिल है?", "हम जो रेट भेजते हैं वह आपकी साइट तक डिलीवरी के साथ होता है, ताकि आप दूसरे कोटेशन से सीधे तुलना कर सकें।"),
+                     ("डीलर की जगह फैक्ट्री से क्यों ख़रीदें?", "ब्लॉक हमारी अपनी मंडीदीप फैक्ट्री में बनते हैं और एमपी नगर कार्यालय से बिकते हैं — बीच में डीलर का मार्जिन नहीं। पूरा ऑर्डर मिलते-जुलते बैच से आता है, इसलिए फ़र्श का रंग एक जैसा रहता है।")])),
+  dict(slug="guides/60mm-vs-80mm-vs-100mm-paver-blocks", title="60 mm vs 80 mm vs 100 mm Paver Blocks: Which Thickness? | Satyam Pavers", h1="60 mm vs 80 mm vs 100 mm paver blocks",
+       desc="Which paver block thickness do you need? 60 mm for paths and light driveways, 80 mm for cars and colony roads, 100 mm for trucks and forklifts, with grade, base and dig depth.",
+       answer="Use 60 mm paver blocks for footpaths, gardens, terraces and home driveways with light car use; 80 mm for daily cars, SUVs, colony roads and car parks; and 100 mm for buses, trucks, petrol pumps, factory yards and forklifts. The stone base under the block matters as much as its thickness.",
+       howto=False,
+       table=("Thickness at a glance", ["Thickness", "Use it for", "Strength grade", "Stone sub-base", "Dig depth (approx.)"],
+              [["60 mm", "Footpaths, gardens, terraces, two-wheelers, light home driveways", "M30–M35", "100–150 mm", "190–240 mm"],
+               ["80 mm", "Daily cars and SUVs, colony roads, car parks", "M35–M40", "200 mm", "about 310 mm"],
+               ["100 mm", "Buses, trucks, petrol pumps, factory roads", "M40–M50", "250 mm", "about 380 mm"],
+               ["100 mm, M50", "Forklifts, loading bays, container yards", "M50", "300 mm", "about 430 mm"]]),
+       steps=[("Why thicker blocks carry more", "A thicker block is stiffer and locks deeper into its neighbours, so a wheel load spreads over a wider area of base instead of pushing single blocks down. That is why ruts show first on thin blocks under heavy wheels."),
+              ("The base matters as much", "An 80 mm block on a poor base sinks sooner than a 60 mm block on a well-compacted one. Build the stone sub-base in compacted layers and fix kerbs at the edges; a thicker block will not rescue a weak base."),
+              ("When to step up a size", "Go one thickness up if delivery trucks, water tankers or construction vehicles will use the floor even now and then, or where cars turn sharply in one spot, such as at a gate."),
+              ("Which shapes come in which thickness", "Zig-zag, I-shape and rectangular blocks come in 60, 80 and 100 mm. Square, Combo 5, diamond and cosmic blocks come in 60 and 80 mm. Decorative finishes such as slate, speckled and hexagon tiles are made for foot traffic.")],
+       faqs=[("Is 60 mm paver block enough for cars?", "For a home driveway with light, slow car use on a good base, yes. For daily cars, SUVs or colony roads, use 80 mm."),
+             ("Which thickness for a petrol pump or truck yard?", "100 mm, grade M40–M50, on a 250 mm compacted stone base. Use M50 on a 300 mm base where forklifts or containers run.")]),
+  dict(slug="guides/paver-blocks-vs-tiles-vs-concrete-driveway", title="Paver Blocks vs Concrete vs Tiles for a Driveway | Satyam Pavers", h1="Paver blocks vs concrete vs tiles for a driveway",
+       desc="Paver blocks, a concrete slab, Kota stone or tiles for your driveway? Load, grip in the rain, drainage, cracks, repairs and looks compared for Indian homes.",
+       answer="For a driveway that cars use every day, interlocking paver blocks are usually the best long-term choice: they carry car loads, let some rainwater through the joints, and can be repaired block by block. A concrete slab cracks across and has to be broken out to repair. Kota stone and ceramic or vitrified tiles suit covered porches with foot traffic; on an open driveway they get slippery in the rain and crack under wheels.",
+       howto=False,
+       table=("Side by side", ["", "Paver blocks", "Concrete slab", "Kota stone", "Ceramic / vitrified tiles"],
+              [["Takes car loads", "Yes (60–80 mm)", "Yes, if reinforced", "Thin slabs crack", "Not made for cars"],
+               ["Grip when wet", "Good; anti-skid face available", "Good if brushed", "Slippery when polished", "Slippery"],
+               ["Rainwater", "Some drains through joints", "Runs off", "Runs off", "Runs off"],
+               ["Cracks", "Joints take up movement", "Cracks across the slab", "Slabs crack", "Tiles crack and come loose"],
+               ["Repairs", "Lift and re-lay the same blocks", "Break out and re-cast", "Replace the slab", "Replace tiles; hard to match"],
+               ["Ready for cars", "As soon as compacted and jointed", "After curing, a week or more", "After the mortar sets", "After the mortar sets"],
+               ["Look", "Many shapes, colours, patterns", "Plain grey", "Natural stone", "Many designs"]]),
+       steps=[("When paver blocks are the right choice", "Anywhere cars drive, where pipes or cables run underneath, and where monsoon rain stands on the surface. Pavers also let you change the look later by re-laying in a new pattern."),
+              ("When a concrete slab makes sense", "For a narrow utility strip or a trolley ramp where a perfectly smooth surface matters. Build it reinforced, with expansion joints, and cure it properly before use."),
+              ("Kota stone and tiles", "Kota stone with a rough finish suits verandahs, steps and covered porches. Ceramic and vitrified tiles belong indoors and on covered porches; on an open driveway they get slippery in rain and crack under car wheels."),
+              ("A mixed design works well", "Many Bhopal homes pave the driveway in 80 mm zig-zag or rectangular blocks, use paver tiles or Kota stone on the covered porch, and finish the edges with kerb stones.")],
+       faqs=[("Are paver blocks cheaper than a concrete driveway?", "The first cost is often similar. Over the years pavers usually cost less, because a damaged patch is lifted and re-laid instead of breaking out the slab."),
+             ("Can I use tiles on my driveway?", "Not on an open driveway that cars use. Tiles are slippery when wet and crack under wheels. Use 300 × 300 mm concrete paver tiles or Kota stone on a covered porch instead.")]),
 ]
-def build_guide(g):
-    root = "../../"
-    steps = "".join(f'<li><h2 class="h2" style="font-size:1.5rem">{e(h)}</h2><p>{e(t)}</p></li>' for h, t in g["steps"])
-    graph = [org_schema(), crumbs([("Home", ""), (g["h1"], g["slug"] + "/")])]
+def guide_table(t):
+    cap, heads, rows = t
+    th = "".join(f'<th scope="col">{e(h)}</th>' for h in heads)
+    body = "".join("<tr>" + "".join(f'<th scope="row">{e(c)}</th>' if i == 0 else f"<td>{e(c)}</td>" for i, c in enumerate(r)) + "</tr>" for r in rows)
+    return f'<h2 class="h2" style="margin-top:40px">{e(cap)}</h2><div class="tbl" style="margin-top:14px"><table class="spec"><thead><tr>{th}</tr></thead><tbody>{body}</tbody></table></div>'
+
+def build_guide(g, hi=False):
+    root = "../../../" if hi else "../../"
+    G = dict(g, **g["hi"]) if hi else g
+    url = ("hi/" if hi else "") + g["slug"] + "/"
+    steps = "".join(f'<li><h2 class="h2" style="font-size:1.5rem">{e(h)}</h2><p>{e(t)}</p></li>' for h, t in G["steps"])
+    faqs = G.get("faqs", [])
+    graph = [org_schema(), crumbs([("Home", ""), (G["h1"], url)]),
+             {"@type": "Article", "headline": G["h1"], "description": G["desc"], "inLanguage": "hi-IN" if hi else "en-IN", "dateModified": TODAY,
+              "author": {"@id": ORG_ID}, "publisher": {"@id": ORG_ID}, "mainEntityOfPage": SITE_URL + url}]
     if g["howto"]:
-        graph.append({"@type": "HowTo", "name": g["h1"], "description": g["answer"], "step": [{"@type": "HowToStep", "position": i + 1, "name": h, "text": t} for i, (h, t) in enumerate(g["steps"])]})
-    other = next(x for x in GUIDES if x is not g)
+        graph.append({"@type": "HowTo", "name": G["h1"], "description": G["answer"], "step": [{"@type": "HowToStep", "position": i + 1, "name": h, "text": t} for i, (h, t) in enumerate(G["steps"])]})
+    if faqs: graph.append(faq_schema(faqs))
+    table = guide_table(g["table"]) if g.get("table") and not hi else ""
+    faq = f'<h2 class="h2" style="margin-top:48px">{"सवाल-जवाब" if hi else "Questions"}</h2><div class="faq" style="margin-top:16px;display:block">{faq_html(faqs)}</div>' if faqs else ""
+    others = " · ".join(f'<a class="link" href="{root}{x["slug"]}/">{e(x["h1"])}</a>' for x in GUIDES if x is not g)
+    if hi:
+        more = f'<p style="margin-top:32px">और पढ़ें: <a class="link" href="{root}hi/">भोपाल में पेवर ब्लॉक</a> · <a class="link" href="{root}hi/products/">सभी ब्लॉक</a> · <a class="link" href="{root}{g["slug"]}/" lang="en">Read in English</a></p>'
+    else:
+        uses = " · ".join(f'<a class="link" href="{root}uses/{u["slug"]}/">{e(u["short"])}</a>' for u in USES)
+        more = f'<p style="margin-top:32px">Not sure which thickness you need? See the <a class="link" href="{root}#load">load guide</a>.</p><p style="margin-top:12px">Pavers by use: {uses}</p><p style="margin-top:12px">More guides: {others}</p>'
+    tail = (f'<div style="margin-top:40px" id="enquiry">{enquiry_form(root, hi=hi)}</div>' if g.get("enquiry") else
+            f'<div class="row2" style="margin-top:24px"><a class="btn btn-primary" href="{root}contact/">Send enquiry</a><a class="link" href="{root}products/">See all 14 ranges</a></div>')
     main = f'''<main id="main"><section><div class="wrap" style="max-width:820px">
-  <nav class="crumbs" aria-label="Breadcrumb"><a href="{root}">Home</a> / <span>{e(g["h1"])}</span></nav>
-  <div class="label">Guide</div>
-  <h1 class="h1">{e(g["h1"])}</h1>
-  <p class="answer">{e(g["answer"])}</p>
+  <nav class="crumbs" aria-label="Breadcrumb"><a href="{root}{"hi/" if hi else ""}">{"होम" if hi else "Home"}</a> / <span>{e(G["h1"])}</span></nav>
+  <div class="label">{"गाइड" if hi else "Guide"}</div>
+  <h1 class="h1">{e(G["h1"])}</h1>
+  <p class="answer">{e(G["answer"])}</p>
+  {table}
   <ol class="guide-steps">{steps}</ol>
-  <p style="margin-top:32px">Not sure which thickness you need? See the <a class="link" href="{root}#load">load guide</a> · Also read: <a class="link" href="{root}{other["slug"]}/">{e(other["h1"])}</a></p>
-  <div class="row2" style="margin-top:24px"><a class="btn btn-primary" href="{root}contact/">Send enquiry</a><a class="link" href="{root}products/">See all 14 ranges</a></div>
+  {faq}
+  {more}
+  {tail}
 </div></section></main>
 '''
-    write(g["slug"] + "/index.html", head(root, g["slug"] + "/", g["title"], g["desc"], schema=ld(graph)) + header(root) + main + footer(root))
+    write(url + "index.html", head(root, url, G["title"], G["desc"], schema=ld(graph), lang="hi" if hi else "en") + header(root) + main + footer(root))
 
 # ---------- calculator ----------
 CALC = [("Rectangular 200×100 mm", 50), ("Zig-Zag (Uni) interlocking", 40), ("I-Shape (Behaton)", 39), ("Square 200×200 mm", 25), ("Cosmic interlocking", 36), ("Paver tiles 300×300 mm", 11)]
@@ -536,11 +822,13 @@ def build_home():
     body = body.replace("{{GRID}}", "".join(card(p, "", i) for i, p in enumerate(sorted(PRODUCTS, key=lambda p: not (images_of(p) or not p.get("noRender"))))))
     body = body.replace("{{PLACES}}", "".join(place_html(l, "") for l in LOCATIONS))
     body = body.replace("{{FAQ}}", faq_html(FAQ))
+    trust = projects_strip("") + (f'<section><div class="wrap">{reviews_html("")}</div></section>' if REVIEWS else "")
+    body = body.replace("<!-- VISIT -->", trust + "\n  <!-- VISIT -->", 1)
     graph = [org_schema(), {"@type": "WebSite", "@id": SITE_URL + "#website", "name": BRAND, "url": SITE_URL, "publisher": {"@id": ORG_ID}, "inLanguage": "en-IN"}] + [loc_schema(l) for l in LOCATIONS] + [faq_schema(FAQ),
              {"@type": "ItemList", "name": "Satyam Pavers products", "itemListElement": [{"@type": "ListItem", "position": i + 1, "url": SITE_URL + "products/" + p["slug"] + "/", "name": p["full"]} for i, p in enumerate(PRODUCTS)]}]
     page = head("", "", "Paver Block Manufacturer in Bhopal & Mandideep | Satyam Pavers",
                 "Concrete paver blocks, interlocking tiles and kerb stones made in Mandideep for Bhopal. 14 ranges, 60–100 mm. Design your floor online and send an enquiry.",
-                schema=ld(graph), extra='<link rel="preload" as="image" href="assets/img/scenes/hero.webp">\n')
+                schema=ld(graph), extra='<link rel="preload" as="image" href="assets/img/scenes/hero.webp" fetchpriority="high">\n')
     write("index.html", page + header("") + body + footer(""))
 
 def build_products_index():
@@ -593,6 +881,9 @@ def build_product(p, idx):
     studio = f'<a class="link" href="{root}#studio">Try it in the pattern studio</a>' if p["patterns"] else ""
     wa = e(wa_link(f'Hello Satyam Pavers, I would like to enquire about {p["full"]}.'))
     url = f'products/{p["slug"]}/'
+    ul = uses_for(p["id"])
+    uses_links = ('<p class="note" style="margin-top:10px">Used for: ' + " · ".join(f'<a href="{root}uses/{u["slug"]}/">{e(u["short"])}</a>' for u in ul) + '</p>') if ul else ""
+    hi_link = f' · <a href="{root}hi/products/{p["slug"]}/" lang="hi">हिंदी में पढ़ें</a>' if p["id"] in HI_PRODUCTS else ""
     graph = [org_schema(), crumbs([("Home", ""), ("Products", "products/"), (p["full"], url)]),
              {"@type": "Product", "@id": SITE_URL + url + "#product", "name": p["full"], "description": p["answer"], "sku": "SP-" + p["code"],
               "image": [SITE_URL + s[len(root):] for s, _, _ in gallery], "brand": {"@type": "Brand", "name": BRAND}, "manufacturer": {"@id": ORG_ID},
@@ -618,7 +909,10 @@ def build_product(p, idx):
     <div><h2 class="h2">Specifications</h2><div class="tbl" style="margin-top:14px"><table class="spec"><tbody>{spec_rows}</tbody></table></div>
       <p class="note" style="margin-top:8px">Typical values. Confirm exact size, grade and stock for your order.</p></div>
     <div><h2 class="h2">Where it works best</h2><ul class="asklist" style="margin-top:14px">{best}</ul>
-      <p class="note" style="margin-top:14px">Not sure about thickness? See the <a href="{root}#load">load guide</a>.</p></div>
+      <p class="note" style="margin-top:14px">Not sure about thickness? See the <a href="{root}#load">load guide</a>.</p>
+      {uses_links}
+      <p class="note" style="margin-top:10px">Pricing: <a href="{root}guides/paver-block-price-bhopal/">what decides the price of paver blocks</a>{hi_link}</p>
+      <div style="margin-top:20px">{callback_form(p["full"])}</div></div>
   </div>
   {f'<div class="pgs">{thumbs}</div>' if thumbs else ''}
   <div class="faq" style="margin-top:72px"><div><div class="label">FAQ</div><h2 class="h2">{e(p["name"])} questions</h2></div><div>{faq_html(faqs)}</div></div>
@@ -652,6 +946,215 @@ LOC_COPY = {
           ("For builders and contractors", "Phased delivery that follows your site schedule, colour matched across batches, and kerbs and edging to finish colony roads. Send your project quantity for a supply plan.")]),
 }
 
+# ---------- trust blocks: render only when real data has been filled in at the top of this file ----------
+def uses_block(root):
+    links = "".join(f'<li><a class="link" href="{root}uses/{u["slug"]}/">{e(u["h1"])}</a></li>' for u in USES)
+    return f'<h2 class="h2" style="margin-top:40px">Pavers by use</h2><ul class="asklist" style="margin-top:14px">{links}</ul>'
+
+def reviews_html(root, hi=False):
+    if not REVIEWS: return ""
+    items = "".join(f'<figure class="review"><div class="stars" aria-label="{r.get("rating", 5)} out of 5">{"★" * int(r.get("rating", 5))}</div><blockquote>{e(r["text"])}</blockquote>'
+                    f'<figcaption><b>{e(r["name"])}</b> · {e(r["place"])}</figcaption></figure>' for r in REVIEWS)
+    more = f'<a class="link" href="{e(GBP_REVIEW_URL)}" target="_blank" rel="noopener">{"Google पर रिव्यू लिखें" if hi else "Review us on Google"}</a>' if GBP_REVIEW_URL else ""
+    return f'''<section class="reviews" style="margin-top:56px"><div class="label">{"ग्राहकों की राय" if hi else "Reviews from Google"}</div>
+  <h2 class="h2">{"ग्राहक क्या कहते हैं" if hi else "What customers say"}</h2><div class="review-grid">{items}</div><p style="margin-top:14px">{more}</p></section>'''
+
+def project_card(pr, root):
+    p = P(pr["product"])
+    img = f'<img src="{root}{pr["photo"]}" alt="{e(p["name"])} paver blocks at {e(pr["site"])}, {e(pr["place"])}" loading="lazy" width="1200" height="900">' if pr.get("photo") else ""
+    facts = " · ".join(x for x in [f'{pr["sqft"]:,} sq ft' if pr.get("sqft") else "", str(pr["year"]) if pr.get("year") else ""] if x)
+    return (f'<article class="project">{img}<div class="project-body"><div class="label">{e(pr["place"])}</div><h3>{e(pr["site"])}</h3>'
+            f'<p><a href="{root}products/{p["slug"]}/">{e(p["full"])}</a>{" · " + e(pr["note"]) if pr.get("note") else ""}</p><p class="note">{facts}</p></div></article>')
+
+def projects_strip(root):
+    if not PROJECTS: return ""
+    return f'''<section id="projects"><div class="wrap"><div class="head"><div><div class="label">Projects</div><h2>Sites we have supplied</h2></div></div>
+  <div class="project-grid">{"".join(project_card(pr, root) for pr in PROJECTS[:3])}</div>
+  <p style="margin-top:20px"><a class="link" href="{root}projects/">See all projects</a></p></div></section>'''
+
+def build_projects():
+    if not PROJECTS: return
+    root = "../"
+    graph = [org_schema(), crumbs([("Home", ""), ("Projects", "projects/")]), {"@type": "CollectionPage", "name": "Satyam Pavers projects", "url": SITE_URL + "projects/", "about": {"@id": ORG_ID}}]
+    main = f'''<main id="main"><section><div class="wrap">
+  <nav class="crumbs" aria-label="Breadcrumb"><a href="../">Home</a> / <span>Projects</span></nav>
+  <div class="label">Projects</div><h1 class="h1">Paver projects in Bhopal and nearby</h1>
+  <p class="answer">Driveways, colony roads, car parks and yards paved with {BRAND} blocks, made at our Mandideep factory.</p>
+  <div class="project-grid" style="margin-top:28px">{"".join(project_card(pr, root) for pr in PROJECTS)}</div>
+  {reviews_html(root)}
+</div></section></main>
+'''
+    write("projects/index.html", head(root, "projects/", "Paver Block Projects in Bhopal | Satyam Pavers", "Driveways, colony roads, car parks and factory yards in Bhopal and nearby paved with Satyam Pavers blocks from our Mandideep factory.", schema=ld(graph)) + header(root) + main + footer(root))
+
+# ---------- Hindi pages (real pages Google can index; the JS toggle only translates the shared labels) ----------
+HI_NAMES = {"rectangular": "रेक्टैंगुलर पेवर ब्लॉक", "zigzag": "ज़िग-ज़ैग (यूनी) पेवर ब्लॉक", "ishape": "आई-शेप (बेहटन) पेवर ब्लॉक", "square": "स्क्वेयर पेवर ब्लॉक",
+            "combo5": "कॉम्बो 5 सीरीज़ पेवर सेट", "diamond": "डायमंड पेवर ब्लॉक", "cosmic": "कॉस्मिक पेवर ब्लॉक", "hexagon": "हेक्सागन 3D पेवर टाइल्स",
+            "slate": "स्लेट फ़िनिश पेवर स्लैब", "antiskid": "एंटी-स्किड पेवर ब्लॉक", "cobble": "कोबल स्टोन पेवर", "speckled": "स्पेकल्ड फ़िनिश पेवर ब्लॉक",
+            "curved": "कंक्रीट कर्ब स्टोन", "tiles": "कंक्रीट पेवर टाइल्स"}
+HI_LOAD = {"Foot to heavy": "पैदल से भारी वाहन तक", "Cars to heavy": "कार से भारी वाहन तक", "Cars to very heavy": "कार से बहुत भारी वाहन तक",
+           "Foot to light": "पैदल से हल्के वाहन तक", "Foot traffic": "पैदल आवाजाही", "Edging": "किनारे के लिए"}
+HI_COLOURS = {"grey": "ग्रे", "red": "लाल", "yellow": "पीला", "orange": "नारंगी", "black": "काला", "brown": "भूरा", "beige": "बेज"}
+HI_COPY = {
+  "zigzag": dict(full="ज़िग-ज़ैग (यूनी) इंटरलॉकिंग पेवर ब्लॉक",
+       answer="ज़िग-ज़ैग पेवर ब्लॉक, जिन्हें यूनी पेवर भी कहते हैं, 225 × 112 mm के इंटरलॉकिंग कंक्रीट ब्लॉक हैं जिनके लहरदार किनारे चारों ओर से अगले ब्लॉक में फँस जाते हैं। ये 60, 80 और 100 mm मोटाई में और ग्रे, लाल, काले, भूरे व पीले रंग में बनते हैं। एक वर्ग फ़ुट में लगभग 3.9 ब्लॉक लगते हैं।",
+       desc="भोपाल में सबसे ज़्यादा लगने वाला ब्लॉक। ब्रेक लगाने और गाड़ी मोड़ने पर भी फ़र्श अपनी जगह टिका रहता है, इसलिए ड्राइववे, पार्किंग और पेट्रोल पंप के लिए यही पहली पसंद है।",
+       best=["घर के ड्राइववे और सोसाइटी की सड़कें", "पेट्रोल पंप और पार्किंग", "इंडस्ट्रियल यार्ड और सड़कें (100 mm)"]),
+  "ishape": dict(full="आई-शेप (बेहटन / डंबल) पेवर ब्लॉक",
+       answer="आई-शेप पेवर ब्लॉक, जिन्हें बेहटन या डंबल पेवर भी कहते हैं, 200 × 165 mm के इंटरलॉकिंग ब्लॉक हैं जो गाड़ियों का भार पूरे फ़र्श पर फैला देते हैं। 80 और 100 mm के ब्लॉक ट्रक यार्ड, बस स्टैंड और गोदामों के लिए हैं; 60 mm घर के ड्राइववे के लिए। एक वर्ग फ़ुट में लगभग 3.6 ब्लॉक लगते हैं।",
+       desc="साइट पर इसे बेहटन या डंबल ब्लॉक कहते हैं। चारों तरफ़ से जुड़कर यह सोसाइटी की सड़कों से लेकर ट्रक यार्ड तक भार बाँट देता है।",
+       best=["सोसाइटी की अंदरूनी सड़कें और फ़ुटपाथ", "कमर्शियल वॉकवे और पार्किंग", "ट्रक यार्ड और गोदाम (100 mm)"]),
+  "rectangular": dict(full="रेक्टैंगुलर पेवर ब्लॉक",
+       answer="रेक्टैंगुलर पेवर ब्लॉक 200 × 100 mm के कंक्रीट ब्लॉक हैं, जो 60, 80 और 100 mm मोटाई में बनते हैं। हेरिंगबोन पैटर्न में बिछाने पर ये मुड़ती गाड़ियों का भार झेलते हैं; रनिंग बॉन्ड या बास्केट वीव में ये रास्तों और आँगन के लिए अच्छे हैं। एक वर्ग फ़ुट में लगभग 4.6 ब्लॉक लगते हैं।",
+       desc="सादा और हर काम का ब्लॉक। ड्राइववे के लिए हेरिंगबोन, रास्तों के लिए रनिंग बॉन्ड और आँगन के लिए बास्केट वीव।",
+       best=["घर के ड्राइववे और पोर्च", "कॉलोनी की सड़कें और कार पार्क", "फैक्ट्री यार्ड (100 mm)"]),
+  "curved": dict(full="कंक्रीट कर्ब स्टोन",
+       answer="कंक्रीट कर्ब स्टोन सड़क, ड्राइववे, पार्किंग, डिवाइडर और गार्डन बेड के किनारे लगते हैं और पेवर ब्लॉक को अपनी जगह थामे रखते हैं। ये सीधे और घुमावदार दोनों प्रोफ़ाइल में बनते हैं और रनिंग फ़ुट के हिसाब से दिए जाते हैं।",
+       desc="कर्ब के बिना किनारे के ब्लॉक गाड़ियों के दबाव से बाहर खिसकने लगते हैं। हर सड़क और ड्राइववे के खुले किनारे पर कर्ब लगाएँ।",
+       best=["सड़क और कॉलोनी के किनारे", "ड्राइववे और पार्किंग के किनारे", "गोल चक्कर, डिवाइडर और गार्डन बेड"]),
+}
+HI_DELIVERY = "हाँ। मंडीदीप फैक्ट्री से भोपाल, ओबेदुल्लागंज, रायसेन, सीहोर, विदिशा, नर्मदापुरम और इंदौर तक ट्रक से डिलीवरी होती है। डिलीवरी की तारीख़ ऑर्डर के साथ तय होती है।"
+def hi_size(p): return {"On request": "पूछें", "Set of 5 blocks": "5 ब्लॉक का सेट"}.get(p["size"], p["size"])
+def hi_thick(p): return " / ".join(map(str, p["thick"])) + " mm" if p["thick"] else "पूछें"
+def hi_href(p, root): return f'{root}hi/products/{p["slug"]}/' if p["id"] in HI_PRODUCTS else f'{root}products/{p["slug"]}/'
+
+def hi_card(p, root):
+    src, _, cap = view_of(p, p["c"], root, card=True)
+    href = hi_href(p, root)
+    return (f'<article class="p"><a class="ph" href="{href}" aria-label="{e(HI_NAMES[p["id"]])}"><img src="{src}" alt="{e(HI_NAMES[p["id"]])}" loading="lazy" width="800" height="1000"></a>'
+            f'<div class="row"><h3><a href="{href}" style="text-decoration:none">{e(HI_NAMES[p["id"]])}</a></h3></div>'
+            f'<div class="sub">{e(HI_LOAD[p["load"]])} · {e(hi_thick(p))}</div></article>')
+
+def hi_product_faq(p):
+    out = []
+    if p["thick"]:
+        out.append((f'{HI_NAMES[p["id"]]} की कितनी मोटाई चाहिए?', f'ये {hi_thick(p)} मोटाई में बनते हैं। पैदल रास्तों के लिए सबसे पतला, कारों के लिए बीच वाला, और ट्रक या फ़ोर्कलिफ़्ट के लिए {p["thick"][-1]} mm लें। आपकी साइट के लिए सही ग्रेड हमारी टीम बताएगी।'))
+    if p.get("per"):
+        out.append(("कितने ब्लॉक लगेंगे?", f'एक वर्ग फ़ुट में लगभग {p["per"]} ब्लॉक, और किनारों की कटाई के लिए लगभग 5% ज़्यादा। 1,000 वर्ग फ़ुट के लिए लगभग {round(1000 * 1.05 * p["per"]):,} ब्लॉक।'))
+    out.append(("रेट कैसे पता करें?", "अपना एरिया (वर्ग फ़ुट), मोटाई, रंग और साइट की जगह भेजें। हमारी टीम उसी कामकाजी दिन फैक्ट्री-डायरेक्ट रेट भेजती है।"))
+    out.append(("क्या आप मेरी साइट तक डिलीवरी करते हैं?", HI_DELIVERY))
+    return out
+
+def build_hi_product(p):
+    root = "../../../"
+    H = HI_COPY[p["id"]]
+    url = f'hi/products/{p["slug"]}/'
+    ims = images_of(p)
+    src, cap = ((root + f'assets/img/{ims[0]["f"]}.webp', ims[0]["cap"]) if ims else (root + f'assets/img/laid/{p["id"]}-{p["c"]}.webp', p["full"]))
+    spec = [("आकार", hi_size(p)), ("मोटाई", hi_thick(p)), ("कवरेज", f'लगभग {p["per"]} ब्लॉक प्रति वर्ग फ़ुट' if p.get("per") else ("रनिंग फ़ुट के हिसाब से" if p["id"] == "curved" else "पूछें")),
+            ("भार", HI_LOAD[p["load"]]), ("रंग", ", ".join(HI_COLOURS[c] for c in colours_of(p))), ("कहाँ बनता है", "हमारी मंडीदीप फैक्ट्री, भोपाल के पास")]
+    rows = "".join(f'<tr><th scope="row">{k}</th><td>{e(v)}</td></tr>' for k, v in spec)
+    best = "".join(f"<li>{e(b)}</li>" for b in H["best"])
+    faqs = hi_product_faq(p)
+    rel = "".join(hi_card(P(i), root) for i in HI_PRODUCTS if i != p["id"])
+    wa = e(wa_link(f'Hello Satyam Pavers, I would like to enquire about {p["full"]}.'))
+    graph = [org_schema(), crumbs([("होम", "hi/"), ("उत्पाद", "hi/products/"), (H["full"], url)]),
+             {"@type": "Product", "name": H["full"], "alternateName": p["full"], "description": H["answer"], "sku": "SP-" + p["code"], "image": SITE_URL + src[len(root):],
+              "brand": {"@type": "Brand", "name": BRAND}, "manufacturer": {"@id": ORG_ID}, "category": "Concrete paving", "material": "Concrete", "inLanguage": "hi-IN"},
+             faq_schema(faqs)]
+    main = f'''<main id="main"><section><div class="wrap">
+  <nav class="crumbs" aria-label="Breadcrumb"><a href="{root}hi/">होम</a> / <a href="{root}hi/products/">उत्पाद</a> / <span>{e(H["full"])}</span></nav>
+  <div class="prod">
+    <figure class="gal"><img src="{src}" alt="{e(H["full"])}" width="1100" height="825" fetchpriority="high"></figure>
+    <div class="prod-info">
+      <div class="label">सत्यम पेवर्स · मंडीदीप में निर्मित</div>
+      <h1 class="h1">{e(H["full"])}</h1>
+      <p class="answer">{e(H["answer"])}</p>
+      <p>{e(H["desc"])}</p>
+      <div class="row2"><a class="btn btn-wa" href="{wa}" target="_blank" rel="noopener"><svg><use href="#wa"/></svg>WhatsApp पर पूछें</a><a class="link" href="{root}products/{p["slug"]}/" lang="en">Read in English</a></div>
+    </div>
+  </div>
+  <div class="prod-cols">
+    <div><h2 class="h2">स्पेसिफ़िकेशन</h2><div class="tbl" style="margin-top:14px"><table class="spec"><tbody>{rows}</tbody></table></div>
+      <p class="note" style="margin-top:8px">ये सामान्य माप हैं। अपने ऑर्डर का सही साइज़, ग्रेड और स्टॉक हमारी टीम से पक्का करें।</p></div>
+    <div><h2 class="h2">कहाँ सबसे अच्छा</h2><ul class="asklist" style="margin-top:14px">{best}</ul>
+      <p class="note" style="margin-top:14px">रेट किन बातों पर तय होता है, पढ़ें: <a href="{root}hi/guides/paver-block-price-bhopal/">भोपाल में पेवर ब्लॉक का रेट</a></p></div>
+  </div>
+  <div class="prod-cols" style="margin-top:56px" id="enquiry">
+    <div>{enquiry_form(root, product=p["full"], hi=True)}</div>
+    <div><h2 class="h2">सवाल-जवाब</h2><div class="faq" style="margin-top:16px;display:block">{faq_html(faqs)}</div>
+      <div style="margin-top:24px">{callback_form(p["full"], hi=True)}</div></div>
+  </div>
+  <h2 class="h2" style="margin-top:56px">और ब्लॉक</h2>
+  <div class="products" style="margin-top:20px">{rel}</div>
+</div></section></main>
+'''
+    title = f'{H["full"]} भोपाल | साइज़, मोटाई और रंग — सत्यम पेवर्स'
+    desc = f'{H["full"]}: {hi_size(p)}, {hi_thick(p)}। मंडीदीप फैक्ट्री में बने, भोपाल और आसपास डिलीवरी। रेट के लिए आज ही पूछताछ भेजें।'
+    write(url + "index.html", head(root, url, title, desc, img=src[len(root):], schema=ld(graph), lang="hi") + header(root) + main + footer(root))
+
+def build_hi_products():
+    root = "../../"
+    rows = "".join(f'<tr><td><a href="{hi_href(p, root)}">{e(HI_NAMES[p["id"]])}</a></td><td class="mono">{e(hi_size(p))}</td><td class="mono">{e(hi_thick(p))}</td><td>{e(HI_LOAD[p["load"]])}</td></tr>' for p in PRODUCTS)
+    cards = "".join(hi_card(P(i), root) for i in HI_PRODUCTS)
+    graph = [org_schema(), crumbs([("होम", "hi/"), ("उत्पाद", "hi/products/")]),
+             {"@type": "CollectionPage", "name": "पेवर ब्लॉक, टाइल्स और कर्ब स्टोन", "url": SITE_URL + "hi/products/", "inLanguage": "hi-IN", "about": {"@id": ORG_ID}}]
+    main = f'''<main id="main"><section><div class="wrap">
+  <nav class="crumbs" aria-label="Breadcrumb"><a href="{root}hi/">होम</a> / <span>उत्पाद</span></nav>
+  <div class="label">कैटलॉग</div><h1 class="h1">पेवर ब्लॉक, टाइल्स और कर्ब स्टोन</h1>
+  <p class="answer">सत्यम पेवर्स अपनी मंडीदीप फैक्ट्री में कंक्रीट पेविंग की 14 रेंज बनाता है: इंटरलॉकिंग पेवर ब्लॉक (ज़िग-ज़ैग, आई-शेप, रेक्टैंगुलर, स्क्वेयर, डायमंड, कॉस्मिक, कॉम्बो 5), डिज़ाइनर फ़िनिश (स्लेट, एंटी-स्किड, कोबल, स्पेकल्ड, हेक्सागन 3D टाइल्स), पेवर टाइल्स और कर्ब स्टोन — 60, 80 और 100 mm में, पैदल रास्तों से लेकर भारी वाहनों तक।</p>
+  <h2 class="h2" style="margin-top:40px">सबसे ज़्यादा माँगे जाने वाले</h2>
+  <div class="products" style="margin-top:20px">{cards}</div>
+  <h2 class="h2" style="margin-top:56px">सभी 14 रेंज: साइज़ और मोटाई</h2>
+  <div class="tbl" style="margin-top:16px"><table class="spec"><thead><tr><th>ब्लॉक</th><th>साइज़</th><th>मोटाई</th><th>भार</th></tr></thead><tbody>{rows}</tbody></table></div>
+  <p class="note" style="margin-top:8px">ये सामान्य माप हैं। ऑर्डर का सही साइज़ और मोटाई हमारी टीम से पक्का करें। <a href="{root}products/" lang="en">English catalogue</a></p>
+  <div class="prod-cols" style="margin-top:56px"><div>{enquiry_form(root, hi=True)}</div>
+    <div><h2 class="h2">रेट जानना है?</h2><p style="margin-top:10px">पढ़ें <a class="link" href="{root}hi/guides/paver-block-price-bhopal/">भोपाल में पेवर ब्लॉक का रेट किन बातों पर तय होता है</a>, या सीधे फ़ॉर्म भरें।</p>
+      <p style="margin-top:14px">कॉल करें: <a class="num" href="tel:{CONTACT["tel"]}"><b>{CONTACT["display"]}</b></a></p></div></div>
+</div></section></main>
+'''
+    write("hi/products/index.html", head(root, "hi/products/", "पेवर ब्लॉक के प्रकार और साइज़ | इंटरलॉकिंग टाइल्स, कर्ब स्टोन — सत्यम पेवर्स",
+          "सत्यम पेवर्स की सभी 14 रेंज: ज़िग-ज़ैग, आई-शेप, रेक्टैंगुलर, स्क्वेयर, डायमंड, कॉस्मिक, हेक्सागन, स्लेट, एंटी-स्किड, कोबल, पेवर टाइल्स और कर्ब स्टोन। साइज़, मोटाई और उपयोग।",
+          schema=ld(graph), lang="hi") + header(root) + main + footer(root))
+
+HI_BHOPAL_FAQ = [
+  ("भोपाल में पेवर ब्लॉक का रेट क्या है?", "रेट मोटाई, आकार, रंग, मात्रा और साइट की दूरी पर निर्भर करता है, इसलिए हम हर ऑर्डर के लिए अलग रेट देते हैं। एरिया, ब्लॉक, मोटाई, रंग और साइट की जगह भेजिए — उसी कामकाजी दिन जवाब मिलेगा।"),
+  ("एक वर्ग फ़ुट में कितने पेवर ब्लॉक लगते हैं?", "लगभग 4.6 रेक्टैंगुलर, 3.9 ज़िग-ज़ैग, 3.6 आई-शेप या 2.3 स्क्वेयर ब्लॉक। किनारों की कटाई के लिए लगभग 5% ज़्यादा जोड़ें।"),
+  ("कार के ड्राइववे के लिए कितनी मोटाई चाहिए?", "कभी-कभार कार वाले घर के ड्राइववे के लिए 60 mm काफ़ी है। रोज़ की कारों, एसयूवी और कॉलोनी की सड़कों के लिए 80 mm सुरक्षित है। ट्रक और फ़ोर्कलिफ़्ट के लिए 100 mm लें।"),
+  ("क्या रंग फीका पड़ता है?", "रंग कंक्रीट में ही मिला होता है, ऊपर पेंट नहीं होता, इसलिए पूरे ब्लॉक में रहता है। धूप में सालों बाद हर कंक्रीट पेवर थोड़ा हल्का होता है; साल में एक-दो बार धोने से चमक बनी रहती है।"),
+  ("क्या भोपाल के बाहर डिलीवरी होती है?", HI_DELIVERY),
+  ("क्या ऑर्डर से पहले ब्लॉक देख सकते हैं?", "हाँ। एमपी नगर के बिक्री कार्यालय या मंडीदीप फैक्ट्री आइए। पहले पूछताछ भेज दें ताकि आपके पसंद के ब्लॉक के सैंपल तैयार रहें।"),
+]
+def build_hi_bhopal():
+    root = "../"
+    l = LOCATIONS[0]
+    secs = [("कौन-सा ब्लॉक किस काम का", None),
+            ("कितनी मोटाई चाहिए", "60 mm: पैदल रास्ते, बगीचे, छत और हल्के ड्राइववे। 80 mm: रोज़ की कारें, एसयूवी, कॉलोनी की सड़कें और पार्किंग। 100 mm: ट्रक, बस, पेट्रोल पंप, फैक्ट्री यार्ड और फ़ोर्कलिफ़्ट। ब्लॉक के नीचे दबाकर बनाया गया गिट्टी का बेस उतना ही ज़रूरी है जितनी मोटाई।"),
+            ("भोपाल में कहाँ-कहाँ डिलीवरी", "पूरे शहर में — कोलार रोड, नर्मदापुरम रोड, अयोध्या बायपास, बावड़िया कलाँ, मिसरोद, कटारा हिल्स, बैरागढ़, गोविंदपुरा, अवधपुरी, शाहपुरा, अरेरा कॉलोनी और पुराना शहर। बड़े ऑर्डर फैक्ट्री से सीधे ट्रक द्वारा आपकी साइट पर जाते हैं।"),
+            ("फैक्ट्री से सीधे क्यों", "बीच में कोई डीलर नहीं, एक ही बैच के मिलते-जुलते रंग, और मंडीदीप फैक्ट्री से लोड हुए ट्रक सीधे आपकी साइट तक। बिल्डरों के लिए साइट के शेड्यूल के हिसाब से चरणों में सप्लाई।")]
+    picks = [("zigzag", "ड्राइववे, पार्किंग और पेट्रोल पंप"), ("ishape", "सोसाइटी की सड़कें, फ़ुटपाथ और ट्रक यार्ड"), ("rectangular", "पोर्च, आँगन और हेरिंगबोन ड्राइववे"), ("curved", "सड़क, ड्राइववे और गार्डन के किनारे")]
+    pick_list = "".join(f'<li><a class="link" href="{hi_href(P(i), root)}">{e(HI_NAMES[i])}</a> — {e(t)}</li>' for i, t in picks)
+    body = "".join(f'<h2 class="h2" style="margin-top:40px">{e(h)}</h2>' + (f'<ul class="asklist" style="margin-top:14px">{pick_list}</ul>' if t is None else f'<p style="margin-top:10px;max-width:68ch">{e(t)}</p>') for h, t in secs)
+    cards = "".join(hi_card(P(i), root) for i in HI_PRODUCTS[:3])
+    graph = [org_schema(), loc_schema(l),
+             crumbs([("होम", "hi/")]), faq_schema(HI_BHOPAL_FAQ),
+             {"@type": "WebPage", "url": SITE_URL + "hi/", "name": "भोपाल में पेवर ब्लॉक", "inLanguage": "hi-IN", "about": {"@id": SITE_URL + l["slug"] + "/#place"}}]
+    main = f'''<main id="main"><section><div class="wrap">
+  <div class="prod">
+    <div class="prod-info" style="padding:0">
+      <div class="label">सत्यम पेवर्स · मंडीदीप में निर्मित</div>
+      <h1 class="h1">भोपाल में पेवर ब्लॉक</h1>
+      <p class="answer">सत्यम पेवर्स इंटरलॉकिंग पेवर ब्लॉक, पेवर टाइल्स और कर्ब स्टोन अपनी मंडीदीप फैक्ट्री में बनाता है और भोपाल में कहीं भी सीधे आपकी साइट तक पहुँचाता है। हमारा बिक्री कार्यालय कान्हा बिल्डिंग, प्लॉट नं. 190, ज़ोन-II, एमपी नगर में होटल कान्हा और सरगम सिनेमा के पास है।</p>
+      <address class="addr"><b>बिक्री कार्यालय</b><br>कान्हा बिल्डिंग, प्लॉट नं. 190, होटल कान्हा के पास, सरगम सिनेमा के पास, ज़ोन-II, महाराणा प्रताप नगर, भोपाल, मध्य प्रदेश {l["pin"]}<br>मोबाइल: <a href="tel:{CONTACT["tel"]}">{CONTACT["display"]}</a></address>
+      <div class="row2"><a class="btn btn-primary" href="#enquiry">पूछताछ भेजें</a><a class="btn btn-ink" href="{maps_link(l)}" target="_blank" rel="noopener">रास्ता देखें</a><a class="link" href="{root}paver-blocks-bhopal/" lang="en">Read in English</a></div>
+    </div>
+    <iframe class="map" title="नक्शा: सत्यम पेवर्स, एमपी नगर" src="{maps_embed(l)}" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+  </div>
+  {body}
+  <h2 class="h2" style="margin-top:56px">लोकप्रिय ब्लॉक</h2>
+  <div class="products" style="margin-top:20px">{cards}</div>
+  <p style="margin-top:20px"><a class="link" href="{root}hi/products/">सभी 14 रेंज देखें</a> · <a class="link" href="{root}hi/guides/paver-block-price-bhopal/">रेट किन बातों पर तय होता है</a></p>
+  {reviews_html(root, hi=True)}
+  <div class="prod-cols" style="margin-top:56px" id="enquiry">
+    <div>{enquiry_form(root, city="भोपाल", hi=True)}</div>
+    <div><h2 class="h2">सवाल-जवाब</h2><div class="faq" style="margin-top:16px;display:block">{faq_html(HI_BHOPAL_FAQ)}</div>
+      <div style="margin-top:24px">{callback_form("Paver blocks, Bhopal", hi=True)}</div></div>
+  </div>
+</div></section></main>
+'''
+    write("hi/index.html", head(root, "hi/", "भोपाल में पेवर ब्लॉक | इंटरलॉकिंग टाइल्स और कर्ब स्टोन — सत्यम पेवर्स",
+          "भोपाल में पेवर ब्लॉक, इंटरलॉकिंग टाइल्स और कर्ब स्टोन। मंडीदीप की अपनी फैक्ट्री में बने, एमपी नगर बिक्री कार्यालय से। रेट के लिए आज ही पूछताछ भेजें।",
+          img="assets/img/onsite/society-road.webp", schema=ld(graph), lang="hi") + header(root) + main + footer(root))
+
 def build_location(l):
     root = "../"
     c = LOC_COPY[l["id"]]
@@ -672,7 +1175,10 @@ def build_location(l):
     <iframe class="map" title="Map: {e(l["name"])}" src="{maps_embed(l)}" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
   </div>
   {secs}
+  {uses_block(root) if l["id"] == "office" else ""}
+  {'<p style="margin-top:16px"><a class="link" href="../hi/" lang="hi">यह पेज हिंदी में पढ़ें →</a></p>' if l["id"] == "office" else ""}
   <figure class="scene"><img src="{root}assets/img/{c["img"] if "/" in c["img"] else "stock/" + c["img"]}.webp" alt="{e(c["img_alt"])}" loading="lazy" width="1200" height="900"></figure>
+  {reviews_html(root) if l["id"] == "office" else ""}
   <h2 class="h2" style="margin-top:56px">Popular blocks</h2>
   <div class="products" style="margin-top:20px">{cards}</div>
   <div class="prod-cols" style="margin-top:56px">
@@ -708,26 +1214,38 @@ def build_404():
     write("404.html", page + header(root) + main + footer(root))
 
 def build_meta():
-    urls = [("", "1.0"), ("products/", "0.9")] + [("products/" + p["slug"] + "/", "0.8") for p in PRODUCTS] + [(l["slug"] + "/", "0.9") for l in LOCATIONS] + [(a["slug"] + "/", "0.7") for a in SERVICE_AREAS] + [(g["slug"] + "/", "0.7") for g in GUIDES] + [("tools/paver-calculator/", "0.7")] + [("contact/", "0.7")]
-    write("sitemap.xml", '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + "".join(f"  <url><loc>{SITE_URL}{u}</loc><lastmod>{TODAY}</lastmod><priority>{pr}</priority></url>\n" for u, pr in urls) + "</urlset>\n")
-    write("robots.txt", f"User-agent: *\nAllow: /\nDisallow: /src/\nDisallow: /tools/\nDisallow: /docs/\n\n# AI search crawlers are welcome\nUser-agent: OAI-SearchBot\nAllow: /\nUser-agent: Claude-SearchBot\nAllow: /\nUser-agent: PerplexityBot\nAllow: /\n\nSitemap: {SITE_URL}sitemap.xml\n")
+    urls = ([("", "1.0"), ("products/", "0.9")] + [("products/" + p["slug"] + "/", "0.8") for p in PRODUCTS] + [(l["slug"] + "/", "0.9") for l in LOCATIONS]
+            + [("uses/" + u["slug"] + "/", "0.8") for u in USES] + [(a["slug"] + "/", "0.7") for a in SERVICE_AREAS] + [(g["slug"] + "/", "0.7") for g in GUIDES]
+            + [("tools/paver-calculator/", "0.7"), ("contact/", "0.7")] + ([("projects/", "0.8")] if PROJECTS else []) + [(v, "0.7") for v in HI_PAIRS.values()])
+    def alts(u):
+        en = next((k for k, v in HI_PAIRS.items() if v == u), u)
+        if en not in HI_PAIRS: return ""
+        return "".join(f'<xhtml:link rel="alternate" hreflang="{h}" href="{SITE_URL}{x}"/>' for h, x in (("en-IN", en), ("hi-IN", HI_PAIRS[en]), ("x-default", en)))
+    write("sitemap.xml", '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n' + "".join(f"  <url><loc>{SITE_URL}{u}</loc><lastmod>{TODAY}</lastmod><priority>{pr}</priority>{alts(u)}</url>\n" for u, pr in urls) + "</urlset>\n")
+    write("robots.txt", f"User-agent: *\nAllow: /\nDisallow: /src/\nAllow: /tools/paver-calculator/\nDisallow: /tools/\nDisallow: /docs/\nDisallow: /tests/\n\n# AI search crawlers are welcome\nUser-agent: OAI-SearchBot\nAllow: /\nUser-agent: Claude-SearchBot\nAllow: /\nUser-agent: PerplexityBot\nAllow: /\n\nSitemap: {SITE_URL}sitemap.xml\n")
     lines = [f"# {BRAND}", "", f"> {BRAND} ({LEGAL}) manufactures concrete paver blocks, interlocking tiles, paver tiles and kerb stones at its factory in Mandideep, Madhya Pradesh, and sells from a sales office in MP Nagar, Bhopal. It supplies shopping malls, schools and colleges, factories and warehouses, housing societies, petrol pumps and homes, and delivers across Bhopal, Raisen, Sehore, Vidisha, Narmadapuram and Indore. Prices are given on enquiry only.", "",
              "## Locations"] + [f"- [{l['role']}]({SITE_URL}{l['slug']}/): {addr_line(l)}" for l in LOCATIONS] + ["", "## Products"] + \
-            [f"- [{p['full']}]({SITE_URL}products/{p['slug']}/): {p['answer']}" for p in PRODUCTS] + ["", "## Delivery areas"] + [f"- [Paver blocks in {a['name']}]({SITE_URL}{a['slug']}/): delivered from Mandideep, about {a['km']} km" for a in SERVICE_AREAS] + \
+            [f"- [{p['full']}]({SITE_URL}products/{p['slug']}/): {p['answer']}" for p in PRODUCTS] + ["", "## Pavers by use"] + [f"- [{u['h1']}]({SITE_URL}uses/{u['slug']}/): {u['answer']}" for u in USES] + ["", "## Delivery areas"] + [f"- [Paver blocks in {a['name']}]({SITE_URL}{a['slug']}/): delivered from Mandideep, about {a['km']} km" for a in SERVICE_AREAS] + \
             ["", "## Guides"] + [f"- [{g['h1']}]({SITE_URL}{g['slug']}/): {g['answer']}" for g in GUIDES] + ["", f"- [Paver block calculator]({SITE_URL}tools/paver-calculator/): estimates block count from area, with 5% wastage.", "", "## Common questions"] + [f"- Q: {q}\n  A: {a}" for q, a in FAQ] + \
+            ["", "## Hindi pages", f"- [भोपाल में पेवर ब्लॉक]({SITE_URL}hi/)", f"- [पेवर ब्लॉक के प्रकार]({SITE_URL}hi/products/)", f"- [भोपाल में पेवर ब्लॉक का रेट]({SITE_URL}hi/guides/paver-block-price-bhopal/)"] + \
             ["", "## Contact", f"- [Send an enquiry]({SITE_URL}contact/): enquiry form and WhatsApp, mobile {CONTACT['display']}", f"- {BRAND} is a brand of {LEGAL}.", ""]
     write("llms.txt", "\n".join(lines))
     write("site.webmanifest", json.dumps({"name": BRAND, "short_name": BRAND, "start_url": "./", "display": "standalone", "background_color": "#F2F1ED", "theme_color": "#151412",
                                           "icons": [{"src": "assets/brand/logo-192.png", "sizes": "192x192", "type": "image/png"}, {"src": "assets/brand/logo-512.png", "sizes": "512x512", "type": "image/png"}]}, indent=1))
     data = {"products": PRODUCTS, "photos": {p["id"]: images_of(p) for p in PRODUCTS}, "colours": {p["id"]: colours_of(p) for p in PRODUCTS}}
-    write("assets/js/data.js", "/* generated by tools/build.py — edit the data there */\nwindow.SP_CONTACT = " + json.dumps(CONTACT) + ";\nwindow.SP_DATA = " + json.dumps(data, ensure_ascii=False) + ";\n")
+    write("assets/js/data.js", "/* generated by tools/build.py — edit the data there */\nwindow.SP_CONTACT = " + json.dumps(dict(CONTACT, email=EMAIL)) + ";\nwindow.SP_DATA = " + json.dumps(data, ensure_ascii=False) + ";\n")
 
 if __name__ == "__main__":
     import_generated(); build_home(); build_products_index()
     for i, p in enumerate(PRODUCTS): build_product(p, i)
     for l in LOCATIONS: build_location(l)
     for a in SERVICE_AREAS: build_area(a)
-    for g in GUIDES: build_guide(g)
-    build_calc()
+    for a in USES: build_use(a)
+    for g in GUIDES:
+        build_guide(g)
+        if g.get("hi"): build_guide(g, hi=True)
+    build_hi_bhopal(); build_hi_products()
+    for i in HI_PRODUCTS: build_hi_product(P(i))
+    build_projects(); build_calc()
     build_contact(); build_404(); build_meta()
-    print("built", 6 + len(PRODUCTS) + len(SERVICE_AREAS) + len(GUIDES) + 1, "pages")
+    print("built", 6 + len(PRODUCTS) + len(SERVICE_AREAS) + len(USES) + len(GUIDES) + len(HI_PAIRS) + (1 if PROJECTS else 0), "pages")

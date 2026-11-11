@@ -22,16 +22,27 @@
 - [Concrete Kerb Stones](https://shriniwas2412.github.io/Paver-Client-Website/products/kerb-stones/): Concrete kerb stones edge roads, driveways, parking areas, medians and garden beds, and hold paver blocks in place. They are made in straight and curved profiles and are supplied by the running foot.
 - [Concrete Paver Tiles](https://shriniwas2412.github.io/Paver-Client-Website/products/paver-tiles/): Concrete paver tiles are 300 × 300 mm flat tiles, 25 or 30 mm thick, laid on mortar. Faces include brick-weave, four-square and nine-square rock-face, in yellow, red and grey. One tile covers about one square foot.
 
+## Pavers by use
+- [Paver blocks for a home driveway](https://shriniwas2412.github.io/Paver-Client-Website/uses/paver-blocks-for-driveway/): For a home driveway, use 60 mm interlocking blocks if a car parks there now and then, and 80 mm for daily cars and SUVs. Zig-zag (uni) blocks, or rectangular blocks laid in herringbone, hold best under turning wheels. Dig about 300 mm, build a 200 mm compacted stone base with 30 mm of sand on top, and fix kerb stones along the open edges.
+- [Paver blocks for parking areas](https://shriniwas2412.github.io/Paver-Client-Website/uses/parking-paver-blocks/): For a car park, use 80 mm zig-zag (uni) or I-shape (Behaton) interlocking blocks on a 200 mm compacted stone base. Where buses, trucks or delivery vans come in, step up to 100 mm. Mark bays and walkways in a contrasting colour of block instead of paint, so the markings never wear off.
+- [Paver blocks for society and colony roads](https://shriniwas2412.github.io/Paver-Client-Website/uses/society-road-paver-blocks/): For colony and society internal roads, use 80 mm I-shape (Behaton) or zig-zag interlocking blocks on a 200–250 mm compacted stone base, with kerb stones on both edges. Footpaths beside the road can be 60 mm. Builders can order phase by phase, with colour matched across batches.
+- [Paver blocks for petrol pumps](https://shriniwas2412.github.io/Paver-Client-Website/uses/petrol-pump-paver-blocks/): Petrol pump forecourts carry tankers, trucks and braking cars, so use 100 mm zig-zag (uni) or I-shape (Behaton) interlocking blocks, grade M40–M50, on a 250 mm compacted stone base, with kerb stones round the islands and edges. Oil drips can be cleaned off, and a stained or damaged block can be lifted and swapped.
+- [Heavy-duty paver blocks for factory yards](https://shriniwas2412.github.io/Paver-Client-Website/uses/factory-yard-paver-blocks/): For factory yards, warehouses and loading bays, use 100 mm I-shape (Behaton) interlocking blocks, grade M50 where forklifts and containers run, on a 250–300 mm compacted stone base. 100 mm zig-zag suits truck roads. Pavers take point loads from forklift wheels and container legs, and can be lifted when underground services need work.
+
 ## Delivery areas
 - [Paver blocks in Obedullaganj](https://shriniwas2412.github.io/Paver-Client-Website/paver-blocks-obedullaganj/): delivered from Mandideep, about 12 km
 - [Paver blocks in Raisen](https://shriniwas2412.github.io/Paver-Client-Website/paver-blocks-raisen/): delivered from Mandideep, about 50 km
 - [Paver blocks in Narmadapuram](https://shriniwas2412.github.io/Paver-Client-Website/paver-blocks-narmadapuram/): delivered from Mandideep, about 55 km
 - [Paver blocks in Sehore](https://shriniwas2412.github.io/Paver-Client-Website/paver-blocks-sehore/): delivered from Mandideep, about 65 km
 - [Paver blocks in Vidisha](https://shriniwas2412.github.io/Paver-Client-Website/paver-blocks-vidisha/): delivered from Mandideep, about 85 km
+- [Paver blocks in Indore](https://shriniwas2412.github.io/Paver-Client-Website/paver-blocks-indore/): delivered from Mandideep, about 215 km
 
 ## Guides
 - [How to lay paver blocks](https://shriniwas2412.github.io/Paver-Client-Website/guides/how-to-lay-paver-blocks/): A paver floor lasts when the ground under it is right. Dig to the depth your load needs, build a compacted stone sub-base, spread a thin even sand bed, fix kerbs at the edges, lay the blocks in pattern, compact them and brush sand into the joints.
 - [Paver block care and maintenance](https://shriniwas2412.github.io/Paver-Client-Website/guides/paver-block-maintenance/): Paver blocks need little care: sweep regularly, wash once or twice a year, top up joint sand when it washes out, and lift and re-lay any patch that sinks. Unlike a concrete slab, a paver floor can always be repaired block by block.
+- [Paver block price in Bhopal: what decides the cost](https://shriniwas2412.github.io/Paver-Client-Website/guides/paver-block-price-bhopal/): The price of paver blocks in Bhopal depends on six things: thickness, shape, colour, surface finish, quantity and delivery distance. Laying is a separate cost from supply. Send us your area, block, thickness, colour and site location, and we reply the same working day with factory-direct terms for your order.
+- [60 mm vs 80 mm vs 100 mm paver blocks](https://shriniwas2412.github.io/Paver-Client-Website/guides/60mm-vs-80mm-vs-100mm-paver-blocks/): Use 60 mm paver blocks for footpaths, gardens, terraces and home driveways with light car use; 80 mm for daily cars, SUVs, colony roads and car parks; and 100 mm for buses, trucks, petrol pumps, factory yards and forklifts. The stone base under the block matters as much as its thickness.
+- [Paver blocks vs concrete vs tiles for a driveway](https://shriniwas2412.github.io/Paver-Client-Website/guides/paver-blocks-vs-tiles-vs-concrete-driveway/): For a driveway that cars use every day, interlocking paver blocks are usually the best long-term choice: they carry car loads, let some rainwater through the joints, and can be repaired block by block. A concrete slab cracks across and has to be broken out to repair. Kota stone and ceramic or vitrified tiles suit covered porches with foot traffic; on an open driveway they get slippery in the rain and crack under wheels.
 
 - [Paver block calculator](https://shriniwas2412.github.io/Paver-Client-Website/tools/paver-calculator/): estimates block count from area, with 5% wastage.
 
@@ -52,6 +63,11 @@
   A: Yes. Visit our sales office in MP Nagar, Bhopal, or our factory in Mandideep. Send an enquiry first and we will keep samples of the blocks you want ready, or send sample blocks for your architect or site engineer.
 - Q: Are pavers better than a concrete slab for a driveway?
   A: Pavers let rainwater drain through the joints, do not crack across the whole surface, and can be lifted and re-laid if a pipe or cable needs work. A cracked slab has to be broken out.
+
+## Hindi pages
+- [भोपाल में पेवर ब्लॉक](https://shriniwas2412.github.io/Paver-Client-Website/hi/)
+- [पेवर ब्लॉक के प्रकार](https://shriniwas2412.github.io/Paver-Client-Website/hi/products/)
+- [भोपाल में पेवर ब्लॉक का रेट](https://shriniwas2412.github.io/Paver-Client-Website/hi/guides/paver-block-price-bhopal/)
 
 ## Contact
 - [Send an enquiry](https://shriniwas2412.github.io/Paver-Client-Website/contact/): enquiry form and WhatsApp, mobile +91 91711 10110

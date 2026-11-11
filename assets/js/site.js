@@ -180,7 +180,7 @@ function paint(cv, cfg, opt){
 
 /* ---------- i18n ---------- */
 const HI = {
-  "nav.studio":"पैटर्न स्टूडियो","nav.products":"उत्पाद","nav.load":"भार गाइड","nav.visit":"विज़िट","nav.quote":"पूछताछ भेजें",
+  "nav.studio":"पैटर्न स्टूडियो","nav.products":"उत्पाद","nav.bhopal":"भोपाल","nav.mandideep":"मंडीदीप","nav.load":"भार गाइड","nav.visit":"विज़िट","nav.quote":"पूछताछ भेजें",
   "nav.desk.home":"होम गाइड","nav.desk.builder":"सप्लाई डेस्क","nav.desk.architect":"स्पेक डेस्क",
   "mode.label":"मैं हूँ","mode.home":"घर मालिक","mode.builder":"बिल्डर","mode.architect":"आर्किटेक्ट","hero.repave":"रंग बदलकर देखें",
   "trust.1":"उत्पाद रेंज","trust.2b":"अपना प्लांट","trust.2":"मंडीदीप में समय पर निर्माण","trust.3":"हर भार के लिए मोटाई","trust.4b":"बड़ी साइटें","trust.4":"मॉल, स्टेडियम, स्कूल, अस्पताल",
@@ -206,7 +206,8 @@ const HERO = {
 };
 const EN = {"q.send":"Send enquiry", "q.next":"Next", "q.back":"Back"};
 document.querySelectorAll("[data-i18n]").forEach(el => { if(!EN[el.dataset.i18n]) EN[el.dataset.i18n] = el.textContent; });
-let LANG = store.get("lang")==="hi" ? "hi" : "en";
+const ALT = document.documentElement.dataset.alt;
+let LANG = ALT ? (document.documentElement.lang==="hi" ? "hi" : "en") : (store.get("lang")==="hi" ? "hi" : "en");
 let MODE = ["home","builder","architect"].includes(store.get("mode")) ? store.get("mode") : "home";
 function t(k){ return (LANG==="hi" && HI[k]) || EN[k] || k; }
 function applyText(){
@@ -227,7 +228,7 @@ function setMode(m, quiet){
   if(!quiet) toast(({home:"Showing the homeowner view",builder:"Showing the builder view",architect:"Showing the architect view"})[m]);
 }
 [$("modeSeg"),$("modeSeg2")].filter(Boolean).forEach(g=>g.addEventListener("click", e => { const b=e.target.closest("[data-mode]"); if(b) setMode(b.dataset.mode); }));
-function toggleLang(){ LANG = LANG==="hi"?"en":"hi"; store.set("lang",LANG); applyText(); if(HOME) renderQuote(); }
+function toggleLang(){ LANG = LANG==="hi"?"en":"hi"; store.set("lang",LANG); if(ALT){ location.href = ALT; return; } applyText(); if(HOME) renderQuote(); }
 $("langBtn").addEventListener("click", toggleLang);
 $("langBtn2").addEventListener("click", toggleLang);
 /* phone menu */
@@ -245,12 +246,39 @@ syncThemeBtn();
 
 /* ---------- shared: enquiry form, copy number ---------- */
 /* the enquiry form (contact page and location pages) composes a WhatsApp message; nothing is sent until the visitor presses send there */
+/* analytics: only reports when a GA4 or Clarity id is set in tools/build.py (ANALYTICS) */
+function track(name, extra){ try{ if(window.gtag) gtag("event", name, extra||{}); if(window.clarity) clarity("event", name); }catch(e){} }
+document.addEventListener("click", e=>{ const a=e.target.closest("a"); if(!a) return;
+  if(a.href.startsWith("tel:")) track("call_click"); else if(a.href.includes("wa.me/")) track("whatsapp_click"); else if(a.href.startsWith("mailto:")) track("email_click"); });
+const ENQ_T = {
+  en:{need:"Please add your name and mobile number", needPhone:"Please add your mobile number", done:"Your enquiry is ready", lead:"WhatsApp should open with this message. If it didn't, use one of these:",
+      wa:"Open WhatsApp", call:"Call ", copy:"Copy message", copied:"Copied. Paste it in WhatsApp or SMS.", mail:"Send by email"},
+  hi:{need:"कृपया अपना नाम और मोबाइल नंबर लिखें", needPhone:"कृपया अपना मोबाइल नंबर लिखें", done:"आपकी पूछताछ तैयार है", lead:"WhatsApp इस मैसेज के साथ खुलना चाहिए। न खुले तो इनमें से कोई तरीका अपनाएँ:",
+      wa:"WhatsApp खोलें", call:"कॉल करें ", copy:"मैसेज कॉपी करें", copied:"कॉपी हो गया। WhatsApp या SMS में पेस्ट करें।", mail:"ईमेल से भेजें"} };
+const esc = t => String(t).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c]);
 document.querySelectorAll("form.enq").forEach(f=>f.addEventListener("submit", e=>{ e.preventDefault();
+  const T=ENQ_T[f.dataset.lang==="hi"?"hi":"en"], cb=f.dataset.kind==="callback";
   const v=n=>(f.elements[n]&&f.elements[n].value.trim())||"";
-  if(!v("name")||!v("phone")){ toast("Please add your name and mobile number"); return; }
-  let m="Hello Satyam Pavers, here is my enquiry.\nName: "+v("name")+"\nMobile: "+v("phone");
-  [["product","Product"],["area","Area (sq ft)"],["city","Site location"],["message","Details"]].forEach(([k,l])=>{ if(v(k)) m+="\n"+l+": "+v(k); });
-  const url=waLink(m); const w=window.open(url,"_blank","noopener"); if(!w) location.href=url; }));
+  if(cb ? !v("phone") : (!v("name")||!v("phone"))){ toast(cb ? T.needPhone : T.need); (f.elements[!v("name")&&!cb?"name":"phone"]).focus(); return; }
+  let m;
+  if(cb){ m="Hello Satyam Pavers, please call me back"+(v("product")?" about "+v("product"):"")+".\nMobile: "+v("phone"); }
+  else { m="Hello Satyam Pavers, here is my enquiry.\nName: "+v("name")+"\nMobile: "+v("phone");
+    [["product","Product"],["area","Area (sq ft)"],["city","Site location"],["message","Details"]].forEach(([k,l])=>{ if(v(k)) m+="\n"+l+": "+v(k); }); }
+  track(cb ? "callback_request" : "enquiry_submit", {page: location.pathname});
+  const url=waLink(m);
+  const box=f.querySelector(".enq-done");
+  if(box){
+    box.innerHTML='<b>'+T.done+'</b><p>'+T.lead+'</p><pre>'+esc(m)+'</pre><div class="row2">'+
+      '<a class="btn btn-wa" href="'+esc(url)+'" target="_blank" rel="noopener">'+T.wa+'</a>'+
+      '<a class="btn btn-line" href="tel:'+C.tel+'">'+T.call+esc(C.display)+'</a>'+
+      '<button type="button" class="btn btn-line" data-copy-msg>'+T.copy+'</button>'+
+      (C.email ? '<a class="btn btn-line" href="mailto:'+esc(C.email)+'?subject='+encodeURIComponent("Paver enquiry")+'&body='+encodeURIComponent(m)+'">'+T.mail+'</a>' : '')+'</div>';
+    box.hidden=false;
+    box.querySelector("[data-copy-msg]").addEventListener("click", ()=>{ try{ navigator.clipboard.writeText(m).then(()=>toast(T.copied), ()=>toast(T.copied)); }catch(err){} });
+  }
+  const w=window.open(url,"_blank","noopener");
+  if(!w && !box) location.href=url;
+  if(box) box.focus(); }));
 document.querySelectorAll("[data-copy]").forEach(b=>b.addEventListener("click", ()=>{
   const done=()=>{ b.textContent="Copied"; setTimeout(()=>b.textContent="Copy number",1800); };
   try{ navigator.clipboard.writeText(C.display).then(done, ()=>toast(C.display)); }catch(e){ toast(C.display); } }));
